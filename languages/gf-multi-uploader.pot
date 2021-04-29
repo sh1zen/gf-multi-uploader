@@ -1,0 +1,329 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: gfmu-translation\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gf-multi-"
+"uploader/\n"
+"POT-Creation-Date: 2021-04-29 00:53+0200\n"
+"PO-Revision-Date: 2020-05-13 02:34+0200\n"
+"Last-Translator: sh1zen\n"
+"Language-Team: sh1zen\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.4.3\n"
+"X-Poedit-Basepath: ..\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_ex;_x;_n;_nx;_n_noop;_nx_noop;esc_html__;"
+"esc_attr__;esc_attr_e;esc_html_e;esc_attr_x;esc_html_x\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: languages\n"
+
+#: GFMUAddon.class.php:218 GFMUAddon.class.php:287
+msgid "Save to meta"
+msgstr ""
+
+#: GFMUAddon.class.php:218
+msgid ""
+"If it is set, will save all the data about uploads into the specified "
+"meta."
+msgstr ""
+
+#: GFMUAddon.class.php:219 GFMUAddon.class.php:250
+msgid "Max number of files"
+msgstr ""
+
+#: GFMUAddon.class.php:219
+msgid "Specify the max number of files the user can upload."
+msgstr ""
+
+#: GFMUAddon.class.php:220
+msgid "Max file size"
+msgstr ""
+
+#: GFMUAddon.class.php:220
+msgid "Specify the max size for each file uploaded."
+msgstr ""
+
+#: GFMUAddon.class.php:221
+msgid "Allowed extensions"
+msgstr ""
+
+#: GFMUAddon.class.php:221
+msgid "Specify the allowed extensions."
+msgstr ""
+
+#: GFMUAddon.class.php:239
+msgid "Allowed file extensions"
+msgstr ""
+
+#: GFMUAddon.class.php:245
+msgid "Separated with commas (i.e. jpg, gif, png, pdf)"
+msgstr ""
+
+#: GFMUAddon.class.php:256
+msgid "Number of files users can upload."
+msgstr ""
+
+#: GFMUAddon.class.php:261
+msgid "Maximum file size (MB)"
+msgstr ""
+
+#: GFMUAddon.class.php:267
+msgid "Max file size, support KB, MB, GB units."
+msgstr ""
+
+#: GFMUAddon.class.php:293
+msgid ""
+"If it's set will save the uploaded data into the specified meta value, "
+"comma separated."
+msgstr ""
+
+#: GFMUAddon.class.php:309
+msgid "Simple Form Settings"
+msgstr ""
+
+#: GFMUAddon.class.php:312
+msgid "My checkbox"
+msgstr ""
+
+#: GFMUAddon.class.php:315 GFMUAddon.class.php:327
+#: GFMUAddon.class.php:347 GFMUAddon.class.php:365
+#: GFMUAddon.class.php:382 GFMUAddon.class.php:402
+msgid "This is the tooltip"
+msgstr ""
+
+#: GFMUAddon.class.php:318
+msgid "Enabled"
+msgstr ""
+
+#: GFMUAddon.class.php:324
+msgid "My checkboxes"
+msgstr ""
+
+#: GFMUAddon.class.php:330 GFMUAddon.class.php:350
+#: GFMUAddon.class.php:368 GFMUAddon.class.php:385
+msgid "First Choice"
+msgstr ""
+
+#: GFMUAddon.class.php:334 GFMUAddon.class.php:353
+#: GFMUAddon.class.php:371 GFMUAddon.class.php:389
+msgid "Second Choice"
+msgstr ""
+
+#: GFMUAddon.class.php:338 GFMUAddon.class.php:356
+#: GFMUAddon.class.php:374 GFMUAddon.class.php:393
+msgid "Third Choice"
+msgstr ""
+
+#: GFMUAddon.class.php:344
+msgid "My Radio Buttons"
+msgstr ""
+
+#: GFMUAddon.class.php:361
+msgid "My Horizontal Radio Buttons"
+msgstr ""
+
+#: GFMUAddon.class.php:379
+msgid "My Dropdown"
+msgstr ""
+
+#: GFMUAddon.class.php:399
+msgid "My Text Box"
+msgstr ""
+
+#: GFMUAddon.class.php:407
+msgid "My Hidden Field"
+msgstr ""
+
+#: GFMUAddon.class.php:412
+msgid "Simple condition"
+msgstr ""
+
+#: GFMUAddon.class.php:554
+msgid ""
+"NOT deleting uploaded files. To delete any uploaded files, be sure to "
+"check Delete Uploads"
+msgstr ""
+
+#: GFMUAddon.class.php:558
+msgid "Delete All Uploaded Files"
+msgstr ""
+
+#: assets/js/jquery-ui/jquery-ui.min.js:8
+msgid "'"
+msgstr ""
+
+#: assets/js/plupload/jquery.ui.plupload/jquery.ui.plupload.js:37
+msgid "Select files"
+msgstr ""
+
+#: assets/js/plupload/jquery.ui.plupload/jquery.ui.plupload.js:38
+msgid "Add files to the upload queue and click the start button."
+msgstr ""
+
+#: assets/js/plupload/jquery.ui.plupload/jquery.ui.plupload.js:40
+msgid "List"
+msgstr ""
+
+#: assets/js/plupload/jquery.ui.plupload/jquery.ui.plupload.js:41
+msgid "Thumbnails"
+msgstr ""
+
+#: assets/js/plupload/jquery.ui.plupload/jquery.ui.plupload.js:48
+msgid "Filename"
+msgstr ""
+
+#: assets/js/plupload/jquery.ui.plupload/jquery.ui.plupload.js:49
+msgid "Status"
+msgstr ""
+
+#: assets/js/plupload/jquery.ui.plupload/jquery.ui.plupload.js:50
+msgid "Size"
+msgstr ""
+
+#: assets/js/plupload/jquery.ui.plupload/jquery.ui.plupload.js:56
+msgid "Drag files here."
+msgstr ""
+
+#: assets/js/plupload/jquery.ui.plupload/jquery.ui.plupload.js:65
+#: assets/js/plupload/jquery.ui.plupload/jquery.ui.plupload.js:704
+msgid "Add Files"
+msgstr ""
+
+#: assets/js/plupload/jquery.ui.plupload/jquery.ui.plupload.js:66
+msgid "Start Upload"
+msgstr ""
+
+#: assets/js/plupload/jquery.ui.plupload/jquery.ui.plupload.js:67
+msgid "Stop Upload"
+msgstr ""
+
+#: assets/js/plupload/jquery.ui.plupload/jquery.ui.plupload.js:82
+msgid "Download"
+msgstr ""
+
+#: assets/js/plupload/jquery.ui.plupload/jquery.ui.plupload.js:259
+msgid "File count error."
+msgstr ""
+
+#: assets/js/plupload/jquery.ui.plupload/jquery.ui.plupload.js:276
+#, javascript-format
+msgid "File: %s"
+msgstr ""
+
+#: assets/js/plupload/jquery.ui.plupload/jquery.ui.plupload.js:280
+#, javascript-format
+msgid "File: %s, size: %d, max file size: %d"
+msgstr ""
+
+#: assets/js/plupload/jquery.ui.plupload/jquery.ui.plupload.js:284
+#, javascript-format
+msgid "%s already present in the queue."
+msgstr ""
+
+#: assets/js/plupload/jquery.ui.plupload/jquery.ui.plupload.js:288
+#, javascript-format
+msgid ""
+"Upload element accepts only %d file(s) at a time. Extra files were "
+"stripped."
+msgstr ""
+
+#: assets/js/plupload/jquery.ui.plupload/jquery.ui.plupload.js:292
+msgid "Image format either wrong or not supported."
+msgstr ""
+
+#: assets/js/plupload/jquery.ui.plupload/jquery.ui.plupload.js:296
+msgid "Runtime ran out of available memory."
+msgstr ""
+
+#: assets/js/plupload/jquery.ui.plupload/jquery.ui.plupload.js:305
+msgid "Upload URL might be wrong or doesn't exist."
+msgstr ""
+
+#: assets/js/plupload/jquery.ui.plupload/jquery.ui.plupload.js:600
+msgid "Close"
+msgstr ""
+
+#: assets/js/plupload/jquery.ui.plupload/jquery.ui.plupload.js:676
+#: assets/js/plupload/jquery.ui.plupload/jquery.ui.plupload.js:789
+#, javascript-format
+msgid "Uploaded %d/%d files"
+msgstr ""
+
+#: assets/js/plupload/jquery.ui.plupload/jquery.ui.plupload.js:706
+#, javascript-format
+msgid "%d files queued"
+msgstr ""
+
+#: inc/GFMU_FileUploader.php:107
+msgid "Server Error. Max file size too high, try activate chunking."
+msgstr ""
+
+#: inc/GFMU_FileUploader.php:133
+msgid "Server error. Uploads directory isn't writable or executable."
+msgstr ""
+
+#: inc/GFMU_FileUploader.php:156
+msgid ""
+"Server error. Not a multipart request. Please set forceMultipart to "
+"default value (true)."
+msgstr ""
+
+#: inc/GFMU_FileUploader.php:177
+msgid "File name is empty."
+msgstr ""
+
+#: inc/GFMU_FileUploader.php:190
+msgid "File is empty."
+msgstr ""
+
+#: inc/GFMU_FileUploader.php:201
+#, php-format
+msgid "File is too large. Max %s M"
+msgstr ""
+
+#: inc/GFMU_FileUploader.php:242
+msgid "Server error. Chunks directory isn't writable or executable."
+msgstr ""
+
+#: inc/GFMU_FileUploader.php:280
+msgid "Failed to open input stream"
+msgstr ""
+
+#: inc/GFMU_FileUploader.php:294
+msgid "Failed to open chunk destination file"
+msgstr ""
+
+#: inc/GFMU_FileUploader.php:341
+msgid "Failed to move final buffer file"
+msgstr ""
+
+#: inc/GFMU_FileUploader.php:353
+msgid "Error generating final file path"
+msgstr ""
+
+#: inc/GFMU_FileUploader.php:400
+msgid "The upload was cancelled, or server error encountered"
+msgstr ""
+
+#: inc/GFMU_FileUploader.php:588
+#, php-format
+msgid "File has an invalid extension, it should be one of %s."
+msgstr ""
+
+#: inc/GFMU_FileUploader.php:614
+#, php-format
+msgid "File Type Error: %s."
+msgstr ""
+
+#: inc/gf_multiuploader_field.class.php:137
+msgid "Your browser doesn't have Flash, Silverlight or HTML5 support."
+msgstr ""
+
+#: inc/gf_multiuploader_field.class.php:337
+#, php-format
+msgid "%s uploads"
+msgstr ""
