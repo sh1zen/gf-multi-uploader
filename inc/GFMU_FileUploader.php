@@ -157,7 +157,7 @@ class GFMU_FileUploader
         }
 
         // Get size and name
-        $file = array_map('esc_attr', $_FILES[$this->inputName]);
+        $file = array_map('sanitize_file_name', $_FILES[$this->inputName]);
         $size = $file['size'];
 
         if ($name === null) {

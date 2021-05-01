@@ -375,7 +375,7 @@ class GFMUHandlePluploader
 
             $attachment_id = 0;
 
-            $file_name = $_POST["{$file_uid}_tname"];
+            $file_name = sanitize_text_field($_POST["{$file_uid}_tname"]);
 
             $path = $uplo_dir['basedir'] . '/' . self::$upload_tmp_dir_name . '/' . esc_attr($file_name);
 
@@ -401,7 +401,7 @@ class GFMUHandlePluploader
 
             $file_data[] = [
                 'id'     => $file_uid,
-                'o_name' => $_POST["{$file_uid}_name"],
+                'o_name' => sanitize_text_field($_POST["{$file_uid}_name"]),
                 't_name' => $file_name,
 
                 'url'           => $img_thumb_url,
@@ -420,7 +420,7 @@ class GFMUHandlePluploader
             return [];
         }
 
-        $tmp_uploads = $_POST["input_{$field_id}"];
+        $tmp_uploads = sanitize_text_field($_POST["input_{$field_id}"]);
 
         if (!is_array($tmp_uploads)) {
             return [];
@@ -522,8 +522,8 @@ class GFMUHandlePluploader
 
         return [
             'id'     => $file_uid,
-            't_name' => $_POST["{$file_uid}_tname"],
-            'o_name' => $_POST["{$file_uid}_name"]
+            't_name' => sanitize_text_field($_POST["{$file_uid}_tname"]),
+            'o_name' => sanitize_text_field($_POST["{$file_uid}_name"])
         ];
     }
 }

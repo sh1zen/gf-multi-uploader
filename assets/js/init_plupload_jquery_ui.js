@@ -164,16 +164,22 @@ function downloadFromAjaxPost_XHR(url, params, headers) {
                                     if (typeof value.o_name !== 'undefined')
                                         name = value.o_name;
 
+                                    let file_size = parseInt(value.size, 10);
+
+                                    if(file_size <= 0)
+                                        file_size = 178542;
+
                                     file = new plupload.File({'name': name});
                                     file.id = value.id;
                                     file.target_name = value.t_name;
                                     file.percent = 100;
                                     file.status = plupload.DONE;
-                                    file.size = value.size;
-                                    file.origSize = 0;
+                                    file.size = file_size;
+                                    file.loaded = file_size;
+                                    file.origSize = file_size;
+                                    file.completeTimestamp = Date.now();
                                     file.lastModified = value.lastModified;
                                     file.type = value.mime_type || 'image/jpeg';
-                                    file.loaded = value.size;
                                     file.url = value.url;
                                     file.wpid = value.wpid;
 

@@ -5,7 +5,7 @@ Donate link: https://www.paypal.me/sh1zen
 Requires at least: 4.2.0
 Tested up to: 5.7
 Requires PHP: 5.3
-Stable tag: 1.5.0
+Stable tag: 1.0.0
 License: GNU v3.0 License
 URI: https://github.com/sh1zen/wp-optimizer/blob/master/LICENSE
 

@@ -70,8 +70,7 @@ class GFMUAddon extends GFAddOn
 
                 if (!empty($field->gfmu_save_to_meta)) {
                     $save_to_meta[] = $attachment_id;
-                }
-                else {
+                } else {
 
                     wp_update_post(array('ID' => $attachment_id, 'post_parent' => $post_id));
 
@@ -97,11 +96,9 @@ class GFMUAddon extends GFAddOn
             if ($this->is_gravityforms_supported() && $meets_requirements['meets_requirements']) {
                 $this->init_ajax();
             }
-        }
-        elseif (is_admin()) {
+        } elseif (is_admin()) {
             $this->init_admin();
-        }
-        else {
+        } else {
 
             if ($this->is_gravityforms_supported() && $meets_requirements['meets_requirements']) {
                 $this->init_frontend();
@@ -393,7 +390,6 @@ class GFMUAddon extends GFAddOn
                             array(
                                 'label' => esc_html__('Thumb view', 'gfmu-locale'),
                                 'name'  => 'thumb_view',
-
                             ),
                         ),
                     ),
@@ -404,10 +400,12 @@ class GFMUAddon extends GFAddOn
                         'choices' => array(
                             array(
                                 'label' => esc_html__('Thumb view', 'gfmu-locale'),
+                                'name'  => 'thumbs',
                                 'value' => 'thumbs',
                             ),
                             array(
                                 'label' => esc_html__('List view', 'gfmu-locale'),
+                                'name'  => 'list',
                                 'value' => 'list',
                             ),
                         ),
@@ -436,11 +434,11 @@ class GFMUAddon extends GFAddOn
                         'value'   => '10MB',
                     ),
                     array(
-                        'label'   => esc_html__('Default allowed extensions filters', 'gfmu-locale'),
-                        'type'    => 'text',
-                        'name'    => 'files_filters',
-                        'class'   => 'medium',
-                        'value'   => 'jpg,jpeg,png',
+                        'label' => esc_html__('Default allowed extensions filters', 'gfmu-locale'),
+                        'type'  => 'text',
+                        'name'  => 'files_filters',
+                        'class' => 'medium',
+                        'value' => 'jpg,jpeg,png',
                     ),
                 ),
             ),
@@ -460,13 +458,12 @@ class GFMUAddon extends GFAddOn
 
         if (is_admin()) {
             $scripts = array();
-        }
-        else {
+        } else {
             $scripts = array(
 
                 array(
                     'handle'  => 'plupload-full-min',
-                    'src'     => GFMU_PLUGIN_URL . "/assets/js/plupload/plupload.full{$min}.js",
+                    'src'     => GFMU_PLUGIN_URL . "assets/plupload/plupload.full{$min}.js",
                     'version' => $this->_version,
                     'deps'    => array('jquery'),
                     'enqueue' => array(
@@ -477,7 +474,7 @@ class GFMUAddon extends GFAddOn
                 //JQuery UI Min
                 array(
                     'handle'  => 'plupload-jquery-ui-core',
-                    'src'     => GFMU_PLUGIN_URL . "/assets/js/jquery-ui/jquery-ui{$min}.js",
+                    'src'     => GFMU_PLUGIN_URL . "assets/jquery-ui/jquery-ui{$min}.js",
                     'version' => $this->_version,
                     'deps'    => array('jquery'),
                     'enqueue' => array(
@@ -488,7 +485,7 @@ class GFMUAddon extends GFAddOn
                 //JQuery JQuery UI
                 array(
                     'handle'  => 'plupload-jquery-ui',
-                    'src'     => GFMU_PLUGIN_URL . "/assets/js/plupload/jquery.ui.plupload/jquery.ui.plupload{$min}.js",
+                    'src'     => GFMU_PLUGIN_URL . "assets/plupload/jquery.ui.plupload/jquery.ui.plupload{$min}.js",
                     'version' => $this->_version,
                     'deps'    => array('plupload-full-min'),
                     'enqueue' => array(
@@ -499,7 +496,7 @@ class GFMUAddon extends GFAddOn
                 //Register plupload init script
                 array(
                     'handle'  => 'gfmu-pluploader-init',
-                    'src'     => GFMU_PLUGIN_URL . "/assets/js/init_plupload_jquery_ui.js",
+                    'src'     => GFMU_PLUGIN_URL . "assets/js/init_plupload_jquery_ui.js",
                     'version' => $this->_version,
                     'deps'    => array('plupload-full-min'),
                     'enqueue' => array(
@@ -510,7 +507,7 @@ class GFMUAddon extends GFAddOn
                 //Register request plupload i18n script if found
                 array(
                     'handle'  => 'gfmu-pluploader-locale',
-                    'src'     => GFMU_PLUGIN_URL . "/assets/js/plupload/i18n/{$plupload_i18n_script}.js",
+                    'src'     => GFMU_PLUGIN_URL . "assets/plupload/i18n/{$plupload_i18n_script}.js",
                     'version' => $this->_version,
                     'deps'    => array('plupload-full-min'),
                     'enqueue' => array(
@@ -535,21 +532,29 @@ class GFMUAddon extends GFAddOn
         if (is_admin()) {
             $styles = array(
                 array(
-                    'handle'  => 'my_styles_css',
-                    'src'     => GFMU_PLUGIN_URL . "/assets/css/form-display.css",
+                    'handle'  => 'form-display',
+                    'src'     => GFMU_PLUGIN_URL . "assets/css/form-display.css",
                     'version' => $this->_version,
                     'enqueue' => array(
                         array('field_types' => array('multi-uploader'))
                     )
                 )
             );
-        }
-        else {
+        } else {
             $styles = array(
                 array(
-                    'handle'  => 'my_styles_css',
-                    'src'     => GFMU_PLUGIN_URL . "/assets/js/plupload/jquery.ui.plupload/css/jquery-ui{$min}.css",
+                    'handle'  => 'jquery-ui-css',
+                    'src'     => GFMU_PLUGIN_URL . "assets/jquery-ui/jquery-ui{$min}.css",
                     'version' => $this->_version,
+                    'enqueue' => array(
+                        array('field_types' => array('multi-uploader'))
+                    )
+                ),
+                array(
+                    'handle'  => 'plupload-jquery-ui-css',
+                    'src'     => GFMU_PLUGIN_URL . "assets/plupload/jquery.ui.plupload/css/jquery.ui.plupload.css",
+                    'version' => $this->_version,
+                    'deps'    => array('jquery-ui-css'),
                     'enqueue' => array(
                         array('field_types' => array('multi-uploader'))
                     )
