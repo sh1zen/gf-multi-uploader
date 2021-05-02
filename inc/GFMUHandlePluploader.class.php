@@ -236,9 +236,10 @@ class GFMUHandlePluploader
         $wp_upload_dir = $this->cache['wp_upload_dir'];
 
         $pluploader_tmp_dir = $wp_upload_dir['basedir'] . '/' . self::$upload_tmp_dir_name . '/';
-        $uploaded_file_path = $pluploader_tmp_dir . $args['basename'];
 
         $args = apply_filters('gfmu_maybe_insert_attachment', $args);
+
+        $uploaded_file_path = $pluploader_tmp_dir . $args['basename'];
 
         if (!file_exists($uploaded_file_path)) {
 
@@ -420,13 +421,13 @@ class GFMUHandlePluploader
             return [];
         }
 
-        $tmp_uploads = sanitize_text_field($_POST["input_{$field_id}"]);
+        $tmp_uploads = $_POST["input_{$field_id}"];
 
         if (!is_array($tmp_uploads)) {
             return [];
         }
 
-        return $tmp_uploads;
+        return array_map('sanitize_file_name', $tmp_uploads);
     }
 
     public function get_uploaded_media($args = [])

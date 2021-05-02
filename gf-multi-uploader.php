@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: GF Multi Uploader
+ * Plugin Name: Multi Uploader for Gravity Forms
  * Plugin URI: https://github.com/sh1zen/gf-multi-uploader
  * Description: Multiple file uploader and editor with advanced options for Gravity Forms plugin.
  * Version: 1.0.0

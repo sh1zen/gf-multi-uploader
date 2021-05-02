@@ -1,5 +1,9 @@
 <?php
 
+if (!class_exists('GFForms')) {
+    return;
+}
+
 GFForms::include_addon_framework();
 
 class GFMUAddon extends GFAddOn
@@ -323,7 +327,7 @@ class GFMUAddon extends GFAddOn
                 'label' => ucfirst(pathinfo($file, PATHINFO_FILENAME)),
                 'value' => pathinfo($file, PATHINFO_FILENAME),
             ];
-        }, glob(GFMU_PLUGIN_DIR . 'assets/js/plupload/i18n/*.js', GLOB_NOSORT));
+        }, glob(GFMU_PLUGIN_DIR . 'assets/plupload/i18n/*.js', GLOB_NOSORT));
 
         return array(
             array(
@@ -380,7 +384,6 @@ class GFMUAddon extends GFAddOn
                         'label'   => esc_html__('Enabled view types', 'gfmu-locale'),
                         'type'    => 'checkbox',
                         'name'    => 'checkboxgroup',
-                        'tooltip' => esc_html__('', 'gfmu-locale'),
                         'choices' => array(
                             array(
                                 'label' => esc_html__('List view', 'gfmu-locale'),

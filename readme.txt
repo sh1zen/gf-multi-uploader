@@ -1,4 +1,4 @@
-=== Gravity Forms File Uploader ===
+=== Multi Uploader for Gravity Forms ===
 Contributors: sh1zen
 Tags: gravity forms, gravity forms file upload, gravity forms file uploader, gravity forms uploader, plupload, gravity forms videos
 Donate link: https://www.paypal.me/sh1zen
@@ -13,7 +13,7 @@ Chunked Multiple file uploads, from images, videos to pdf. Files stored in WP Me
 
 == Description ==
 
-This is the Gravity Forms uploader plugin for those who need a little more than the default multi file upload of Gravity Forms.
+This is an advanced upload plugin for those who need a little more than the default multi file upload of Gravity Forms.
 
 **FEATURES**
 

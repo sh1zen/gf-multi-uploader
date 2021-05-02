@@ -9,6 +9,10 @@ class GFMUPluginSetup
 {
     public static function Init()
     {
+        if (!class_exists('GFForms')) {
+            return;
+        }
+
         if (method_exists('GFForms', 'include_addon_framework')) {
             add_action('gform_loaded', ['GFMUPluginSetup', 'boot'], 5);
         }
