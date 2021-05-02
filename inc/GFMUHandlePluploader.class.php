@@ -481,18 +481,18 @@ class GFMUHandlePluploader
 
             $path = get_attached_file($image->ID, true);
 
-            $ext = pathinfo($image->guid, PATHINFO_EXTENSION);
-
-            $file_name = "file_" . ($file_upload_number + 1) . ".{$ext}";
-
             if (file_exists($path)) {
+                $ext = pathinfo($path, PATHINFO_EXTENSION);
                 $file_size = (int)filesize($path);
                 $last_mod = filemtime($path);
             }
             else {
+                $ext = pathinfo($img_thumb_url, PATHINFO_EXTENSION);
                 $file_size = 0;
                 $last_mod = time();
             }
+
+            $file_name = "file_" . ($file_upload_number + 1) . ".{$ext}";
 
             $file_data[] = [
                 'id'     => "o_" . pathinfo($image->guid, PATHINFO_FILENAME),
