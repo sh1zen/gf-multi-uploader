@@ -36,7 +36,7 @@ class GFMUHandlePluploader
 
         $post_id = absint($_POST['file_wpid']);
 
-        $file = substr($_POST['file_id'], 2);
+        $file = substr(sanitize_text_field($_POST['file_id']), 2);
 
         $doing_meta = (isset($_POST['get_by_meta']) and !empty($_POST['get_by_meta']));
 
@@ -417,17 +417,11 @@ class GFMUHandlePluploader
 
     public function get_raw_posted_data($field_id)
     {
-        if (!isset($_POST["input_{$field_id}"])) {
+        if (!isset($_POST["input_{$field_id}"]) or !is_array($_POST["input_{$field_id}"])) {
             return [];
         }
 
-        $tmp_uploads = $_POST["input_{$field_id}"];
-
-        if (!is_array($tmp_uploads)) {
-            return [];
-        }
-
-        return array_map('sanitize_file_name', $tmp_uploads);
+        return array_map('sanitize_file_name', $_POST["input_{$field_id}"]);
     }
 
     public function get_uploaded_media($args = [])

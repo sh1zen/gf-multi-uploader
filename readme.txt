@@ -1,7 +1,7 @@
 === Multi Uploader for Gravity Forms ===
 Contributors: sh1zen
 Tags: gravity forms, gravity forms file upload, gravity forms file uploader, gravity forms uploader, plupload, gravity forms videos
-Donate link: https://www.paypal.me/sh1zen
+Donate link: https://www.paypal.com/donate?business=dev.sh1zen%40outlook.it&item_name=Thank+you+in+advanced+for+the+kind+donations.+You+will+sustain+me+building+better+software.&currency_code=EUR
 Requires at least: 4.2.0
 Tested up to: 5.7
 Requires PHP: 5.3

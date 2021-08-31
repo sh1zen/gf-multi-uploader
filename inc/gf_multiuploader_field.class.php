@@ -84,13 +84,13 @@ class GF_MultiUploader_Field extends GF_Field
         $(document).bind("gform_load_field_settings", function (event, field, form) {
 
         //Populate file extensions with data if set
-        field["gfmu_file_extensions"] = field["gfmu_file_extensions"] || '<?= $plugin_options['filters']['files']; ?>';
+        field["gfmu_file_extensions"] = field["gfmu_file_extensions"] || '<?php echo esc_js($plugin_options['filters']['files']); ?>';
         $("#gfmu_file_extensions").val(field["gfmu_file_extensions"]);
 
-        field["gfmu_file_size"] = field["gfmu_file_size"] || '<?= $plugin_options['max_file_size']; ?>';
+        field["gfmu_file_size"] = field["gfmu_file_size"] || '<?php echo esc_js($plugin_options['max_file_size']); ?>';
         $("#gfmu_file_size").val(field["gfmu_file_size"]);
 
-        field["gfmu_max_files"] = field["gfmu_max_files"] || '<?= $plugin_options['max_files']; ?>';
+        field["gfmu_max_files"] = field["gfmu_max_files"] || '<?php echo esc_js($plugin_options['max_files']); ?>';
         $("#gfmu_max_files").val(field["gfmu_max_files"]);
 
         field["gfmu_save_to_meta"] = field["gfmu_save_to_meta"] || '';
@@ -208,7 +208,7 @@ class GF_MultiUploader_Field extends GF_Field
         ob_start();
         ?>
         <script type="text/javascript">
-            GFMU_options[<?= $field_id ?>].setupFiles = {
+            GFMU_options[<?php echo $field_id ?>].setupFiles = {
                 <?php
                 if (!empty($js_vars)) {
                     foreach ($js_vars as $index => $file_data) {
@@ -220,14 +220,14 @@ class GF_MultiUploader_Field extends GF_Field
 
                         $date = $date->format('Y-m-d\TH:i:s');
 
-                        echo "'{$file_code}': {";
+                        echo "'" . esc_js($file_code) . "': {";
                         echo "'id': '" . esc_attr($file_data['id']) . "',";
                         echo "'o_name': '" . esc_attr($file_data['o_name']) . "',";
                         echo "'t_name': '" . esc_attr($file_data['t_name']) . "',";
-                        echo "'size': '{$file_data['size']}',";
-                        echo "'url': '{$file_data['url']}',";
-                        echo "'lastModified': new Date('{$date}'),";
-                        echo "'wpid': '{$file_data['wpid']}',";
+                        echo "'size': '". esc_js($file_data['size'])."',";
+                        echo "'url': '". esc_url($file_data['url'])."',";
+                        echo "'lastModified': new Date('". esc_js($date)."'),";
+                        echo "'wpid': '". esc_js($file_data['wpid'])."',";
                         echo "},";
                     }
                 }

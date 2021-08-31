@@ -465,32 +465,10 @@ class GFMUAddon extends GFAddOn
             $scripts = array(
 
                 array(
-                    'handle'  => 'plupload-full-min',
-                    'src'     => GFMU_PLUGIN_URL . "assets/plupload/plupload.full{$min}.js",
-                    'version' => $this->_version,
-                    'deps'    => array('jquery'),
-                    'enqueue' => array(
-                        array('field_types' => array('multi-uploader')),
-                    ),
-                ),
-
-                //JQuery UI Min
-                array(
-                    'handle'  => 'plupload-jquery-ui-core',
-                    'src'     => GFMU_PLUGIN_URL . "assets/jquery-ui/jquery-ui{$min}.js",
-                    'version' => $this->_version,
-                    'deps'    => array('jquery'),
-                    'enqueue' => array(
-                        array('field_types' => array('multi-uploader')),
-                    ),
-                ),
-
-                //JQuery JQuery UI
-                array(
                     'handle'  => 'plupload-jquery-ui',
-                    'src'     => GFMU_PLUGIN_URL . "assets/plupload/jquery.ui.plupload/jquery.ui.plupload{$min}.js",
+                    'src'     => GFMU_PLUGIN_URL . "assets/custom-plupload/jquery.ui.plupload/jquery.ui.plupload{$min}.js",
                     'version' => $this->_version,
-                    'deps'    => array('plupload-full-min'),
+                    'deps'    => array('jquery', 'plupload', 'plupload-all', 'jquery-ui-core', 'jquery-ui-widget', 'jquery-ui-button', 'jquery-ui-progressbar', 'jquery-ui-sortable'),
                     'enqueue' => array(
                         array('field_types' => array('multi-uploader')),
                     ),
@@ -501,7 +479,7 @@ class GFMUAddon extends GFAddOn
                     'handle'  => 'gfmu-pluploader-init',
                     'src'     => GFMU_PLUGIN_URL . "assets/js/init_plupload_jquery_ui.js",
                     'version' => $this->_version,
-                    'deps'    => array('plupload-full-min'),
+                    'deps'    => array('jquery', 'plupload', 'plupload-all'),
                     'enqueue' => array(
                         array('field_types' => array('multi-uploader')),
                     ),
@@ -510,9 +488,9 @@ class GFMUAddon extends GFAddOn
                 //Register request plupload i18n script if found
                 array(
                     'handle'  => 'gfmu-pluploader-locale',
-                    'src'     => GFMU_PLUGIN_URL . "assets/plupload/i18n/{$plupload_i18n_script}.js",
+                    'src'     => GFMU_PLUGIN_URL . "assets/custom-plupload/i18n/{$plupload_i18n_script}.js",
                     'version' => $this->_version,
-                    'deps'    => array('plupload-full-min'),
+                    'deps'    => ['jquery', 'plupload', 'plupload-all'],
                     'enqueue' => array(
                         array('field_types' => array('multi-uploader')),
                     ),
@@ -555,7 +533,7 @@ class GFMUAddon extends GFAddOn
                 ),
                 array(
                     'handle'  => 'plupload-jquery-ui-css',
-                    'src'     => GFMU_PLUGIN_URL . "assets/plupload/jquery.ui.plupload/css/jquery.ui.plupload.css",
+                    'src'     => GFMU_PLUGIN_URL . "assets/custom-plupload/jquery.ui.plupload/css/jquery.ui.plupload.css",
                     'version' => $this->_version,
                     'deps'    => array('jquery-ui-css'),
                     'enqueue' => array(

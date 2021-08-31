@@ -20,7 +20,14 @@
 
 ;(function (window, document, plupload, o, $) {
 
-    var uploaders = {};
+    let uploaders = {};
+
+    function polyfill(plupload, o) {
+        plupload.sprintf = o.core.utils.Basic.sprintf;
+        plupload.ua = o.core.utils.Env;
+    }
+
+    polyfill(plupload, o);
 
     function _(str) {
         return plupload.translate(str) || str;
@@ -141,7 +148,8 @@
         FILE_COUNT_ERROR: -9001,
 
         _create: function () {
-            var id = this.element.attr('id');
+
+            let id = this.element.attr('id');
             if (!id) {
                 id = plupload.guid();
                 this.element.attr('id', id);
@@ -212,7 +220,7 @@
         },
 
         _initUploader: function () {
-            var self = this
+            let self = this
                 , id = this.id
                 , uploader
                 , options = {
@@ -435,7 +443,7 @@
         },
 
         _setOption: function (key, value) {
-            var self = this;
+            let self = this;
 
             if (key === 'buttons' && typeof (value) == 'object') {
                 value = $.extend(self.options.buttons, value);
@@ -517,7 +525,7 @@
          @return {plupload.File}
          */
         getFile: function (id) {
-            var file;
+            let file;
 
             if (typeof id === 'number') {
                 file = this.uploader.files[id];
@@ -594,7 +602,7 @@
          @param {String} message The text message to display.
          */
         notify: function (type, message) {
-            var popup = $(
+            let popup = $(
                 '<div class="plupload_message">' +
                 '<span class="plupload_message_close ui-icon ui-icon-circle-close" title="' + _('Close') + '"></span>' +
                 '<p><span class="ui-icon"></span>' + message + '</p>' +
@@ -654,7 +662,7 @@
 
 
         _handleState: function () {
-            var up = this.uploader
+            let up = this.uploader
                 , filesPending = up.files.length - (up.total.uploaded + up.total.failed)
                 , maxCount = up.getOption('filters').max_file_count || 0
             ;
@@ -710,7 +718,7 @@
 
 
         _handleFileStatus: function (file) {
-            var $file = $('#' + file.id), actionClass, iconClass;
+            let $file = $('#' + file.id), actionClass, iconClass;
 
             // since this method might be called asynchronously, file row might not yet be rendered
             if (!$file.length) {
@@ -738,7 +746,7 @@
                     iconClass = 'plupload_action_icon ui-icon ui-icon-circle-arrow-w';
 
                     // scroll uploading file into the view if its bottom boundary is out of it
-                    var scroller = $('.plupload_scroll', this.container)
+                    let scroller = $('.plupload_scroll', this.container)
                         , scrollTop = scroller.scrollTop()
                         , scrollerHeight = scroller.height()
                         , rowOffset = $file.position().top + $file.height()
@@ -770,7 +778,7 @@
 
 
         _updateTotalProgress: function () {
-            var up = this.uploader;
+            let up = this.uploader;
 
             // Scroll to end of file list
             this.filelist[0].scrollTop = this.filelist[0].scrollHeight;
@@ -790,7 +798,7 @@
 
 
         _displayThumbs: function () {
-            var self = this
+            let self = this
                 , tw, th // thumb width/height
                 , cols
                 , num = 0 // number of simultaneously visible thumbs
@@ -804,7 +812,7 @@
 
 
             function onLast(el, eventName, cb) {
-                var timer;
+                let timer;
 
                 el.on(eventName, function () {
                     clearTimeout(timer);
@@ -819,12 +827,12 @@
             // calculate number of simultaneously visible thumbs
             function measure() {
                 if (!tw || !th) {
-                    var wrapper = $('.plupload_file:eq(0)', self.filelist);
+                    let wrapper = $('.plupload_file:eq(0)', self.filelist);
                     tw = wrapper.outerWidth(true);
                     th = wrapper.outerHeight(true);
                 }
 
-                var aw = self.content.width(), ah = self.content.height();
+                let aw = self.content.width(), ah = self.content.height();
                 cols = Math.floor(aw / tw);
                 num = cols * (Math.ceil(ah / th) + 1);
             }
@@ -832,7 +840,7 @@
 
             function pickThumbsToLoad() {
                 // calculate index of virst visible thumb
-                var startIdx = Math.floor(self.content.scrollTop() / th) * cols;
+                let startIdx = Math.floor(self.content.scrollTop() / th) * cols;
                 // get potentially visible thumbs that are not yet visible
                 thumbs = $('.plupload_file', self.filelist)
                     .slice(startIdx, startIdx + num)
@@ -865,11 +873,11 @@
 
 
             function preloadThumb(file, cb) {
-                var img = new o.image.Image();
-                var resolveUrl = o.core.utils.Url.resolveUrl;
+                let img = new o.image.Image();
+                let resolveUrl = o.core.utils.Url.resolveUrl;
 
                 img.onload = function () {
-                    var thumb = $('#' + file.id + ' .plupload_file_thumb', self.filelist).html('');
+                    let thumb = $('#' + file.id + ' .plupload_file_thumb', self.filelist).html('');
                     this.embed(thumb[0], {
                         width: self.options.thumb_width,
                         height: self.options.thumb_height,
@@ -916,7 +924,7 @@
 
 
         _addFiles: function (files) {
-            var self = this, file_html, html = '';
+            let self = this, file_html, html = '';
 
             file_html = '<li class="plupload_file ui-state-default plupload_file_loading plupload_delete" id="%id%">' +
                 '<div class="plupload_file_thumb" style="width:%thumb_width%px;height:%thumb_height%px;">' +
@@ -941,8 +949,8 @@
             }
 
             $.each(files, function (i, file) {
-                var m = file.name.match(/\.([^.]+)$/);
-                var ext = m && m[1].toLowerCase() || 'none';
+                let m = file.name.match(/\.([^.]+)$/);
+                let ext = m && m[1].toLowerCase() || 'none';
 
                 html += file_html.replace(/%(\w+)%/g, function ($0, $1) {
                     switch ($1) {
@@ -1006,7 +1014,7 @@
         },
 
         _enableViewSwitcher: function () {
-            var self = this
+            let self = this
                 , view
                 , switcher = $('.plupload_view_switch', this.container)
                 , buttons
@@ -1079,7 +1087,7 @@
                 cancel: 'object, .plupload_clearer',
 
                 stop: function () {
-                    var files = [];
+                    let files = [];
 
                     $.each($(this).sortable('toArray'), function (i, id) {
                         files[files.length] = self.uploader.getFile(id);

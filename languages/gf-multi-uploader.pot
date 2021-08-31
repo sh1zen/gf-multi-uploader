@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: gfmu-translation\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gf-multi-"
 "uploader/\n"
-"POT-Creation-Date: 2021-05-04 12:57+0200\n"
+"POT-Creation-Date: 2021-09-02 11:50+0200\n"
 "PO-Revision-Date: 2020-05-13 02:34+0200\n"
 "Last-Translator: sh1zen\n"
 "Language-Team: sh1zen\n"
@@ -12,7 +12,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.4.3\n"
+"X-Generator: Poedit 3.0\n"
 "X-Poedit-Basepath: ..\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-SourceCharset: UTF-8\n"
@@ -164,127 +164,127 @@ msgstr ""
 msgid "Default allowed extensions filters"
 msgstr ""
 
-#: assets/plupload/jquery.plupload.queue/jquery.plupload.queue.js:99
-#: assets/plupload/jquery.ui.plupload/jquery.ui.plupload.js:37
+#: assets/custom-plupload/jquery.plupload.queue/jquery.plupload.queue.js:99
+#: assets/custom-plupload/jquery.ui.plupload/jquery.ui.plupload.js:44
 msgid "Select files"
 msgstr ""
 
-#: assets/plupload/jquery.plupload.queue/jquery.plupload.queue.js:100
-#: assets/plupload/jquery.ui.plupload/jquery.ui.plupload.js:38
+#: assets/custom-plupload/jquery.plupload.queue/jquery.plupload.queue.js:100
+#: assets/custom-plupload/jquery.ui.plupload/jquery.ui.plupload.js:45
 msgid "Add files to the upload queue and click the start button."
 msgstr ""
 
-#: assets/plupload/jquery.plupload.queue/jquery.plupload.queue.js:106
-#: assets/plupload/jquery.ui.plupload/jquery.ui.plupload.js:60
+#: assets/custom-plupload/jquery.plupload.queue/jquery.plupload.queue.js:106
+#: assets/custom-plupload/jquery.ui.plupload/jquery.ui.plupload.js:67
 msgid "Filename"
 msgstr ""
 
-#: assets/plupload/jquery.plupload.queue/jquery.plupload.queue.js:108
-#: assets/plupload/jquery.ui.plupload/jquery.ui.plupload.js:61
+#: assets/custom-plupload/jquery.plupload.queue/jquery.plupload.queue.js:108
+#: assets/custom-plupload/jquery.ui.plupload/jquery.ui.plupload.js:68
 msgid "Status"
 msgstr ""
 
-#: assets/plupload/jquery.plupload.queue/jquery.plupload.queue.js:109
-#: assets/plupload/jquery.ui.plupload/jquery.ui.plupload.js:62
+#: assets/custom-plupload/jquery.plupload.queue/jquery.plupload.queue.js:109
+#: assets/custom-plupload/jquery.ui.plupload/jquery.ui.plupload.js:69
 msgid "Size"
 msgstr ""
 
-#: assets/plupload/jquery.plupload.queue/jquery.plupload.queue.js:118
-#: assets/plupload/jquery.plupload.queue/jquery.plupload.queue.js:248
-#: assets/plupload/jquery.ui.plupload/jquery.ui.plupload.js:77
-#: assets/plupload/jquery.ui.plupload/jquery.ui.plupload.js:703
+#: assets/custom-plupload/jquery.plupload.queue/jquery.plupload.queue.js:118
+#: assets/custom-plupload/jquery.plupload.queue/jquery.plupload.queue.js:248
+#: assets/custom-plupload/jquery.ui.plupload/jquery.ui.plupload.js:84
+#: assets/custom-plupload/jquery.ui.plupload/jquery.ui.plupload.js:711
 msgid "Add Files"
 msgstr ""
 
-#: assets/plupload/jquery.plupload.queue/jquery.plupload.queue.js:119
-#: assets/plupload/jquery.ui.plupload/jquery.ui.plupload.js:78
+#: assets/custom-plupload/jquery.plupload.queue/jquery.plupload.queue.js:119
+#: assets/custom-plupload/jquery.ui.plupload/jquery.ui.plupload.js:85
 msgid "Start Upload"
 msgstr ""
 
-#: assets/plupload/jquery.plupload.queue/jquery.plupload.queue.js:201
-#: assets/plupload/jquery.ui.plupload/jquery.ui.plupload.js:675
-#: assets/plupload/jquery.ui.plupload/jquery.ui.plupload.js:788
+#: assets/custom-plupload/jquery.plupload.queue/jquery.plupload.queue.js:201
+#: assets/custom-plupload/jquery.ui.plupload/jquery.ui.plupload.js:683
+#: assets/custom-plupload/jquery.ui.plupload/jquery.ui.plupload.js:796
 #, javascript-format
 msgid "Uploaded %d/%d files"
 msgstr ""
 
-#: assets/plupload/jquery.plupload.queue/jquery.plupload.queue.js:250
-#: assets/plupload/jquery.ui.plupload/jquery.ui.plupload.js:705
+#: assets/custom-plupload/jquery.plupload.queue/jquery.plupload.queue.js:250
+#: assets/custom-plupload/jquery.ui.plupload/jquery.ui.plupload.js:713
 #, javascript-format
 msgid "%d files queued"
 msgstr ""
 
-#: assets/plupload/jquery.plupload.queue/jquery.plupload.queue.js:262
-#: assets/plupload/jquery.plupload.queue/jquery.plupload.queue.js:366
-#: assets/plupload/jquery.ui.plupload/jquery.ui.plupload.js:68
+#: assets/custom-plupload/jquery.plupload.queue/jquery.plupload.queue.js:262
+#: assets/custom-plupload/jquery.plupload.queue/jquery.plupload.queue.js:366
+#: assets/custom-plupload/jquery.ui.plupload/jquery.ui.plupload.js:75
 msgid "Drag files here."
 msgstr ""
 
-#: assets/plupload/jquery.plupload.queue/jquery.plupload.queue.js:345
+#: assets/custom-plupload/jquery.plupload.queue/jquery.plupload.queue.js:345
 msgid "Error: File too large:"
 msgstr ""
 
-#: assets/plupload/jquery.plupload.queue/jquery.plupload.queue.js:349
+#: assets/custom-plupload/jquery.plupload.queue/jquery.plupload.queue.js:349
 msgid "Error: Invalid file extension:"
 msgstr ""
 
-#: assets/plupload/jquery.ui.plupload/jquery.ui.plupload.js:43
-#: assets/plupload/jquery.ui.plupload/jquery.ui.plupload.js:44
+#: assets/custom-plupload/jquery.ui.plupload/jquery.ui.plupload.js:50
+#: assets/custom-plupload/jquery.ui.plupload/jquery.ui.plupload.js:51
 msgid "List"
 msgstr ""
 
-#: assets/plupload/jquery.ui.plupload/jquery.ui.plupload.js:48
-#: assets/plupload/jquery.ui.plupload/jquery.ui.plupload.js:49
+#: assets/custom-plupload/jquery.ui.plupload/jquery.ui.plupload.js:55
+#: assets/custom-plupload/jquery.ui.plupload/jquery.ui.plupload.js:56
 msgid "Thumbnails"
 msgstr ""
 
-#: assets/plupload/jquery.ui.plupload/jquery.ui.plupload.js:79
+#: assets/custom-plupload/jquery.ui.plupload/jquery.ui.plupload.js:86
 msgid "Stop Upload"
 msgstr ""
 
-#: assets/plupload/jquery.ui.plupload/jquery.ui.plupload.js:94
+#: assets/custom-plupload/jquery.ui.plupload/jquery.ui.plupload.js:101
 msgid "Download"
 msgstr ""
 
-#: assets/plupload/jquery.ui.plupload/jquery.ui.plupload.js:258
+#: assets/custom-plupload/jquery.ui.plupload/jquery.ui.plupload.js:266
 msgid "File count error."
 msgstr ""
 
-#: assets/plupload/jquery.ui.plupload/jquery.ui.plupload.js:275
+#: assets/custom-plupload/jquery.ui.plupload/jquery.ui.plupload.js:283
 #, javascript-format
 msgid "File: %s"
 msgstr ""
 
-#: assets/plupload/jquery.ui.plupload/jquery.ui.plupload.js:279
+#: assets/custom-plupload/jquery.ui.plupload/jquery.ui.plupload.js:287
 #, javascript-format
 msgid "File: %s, size: %d, max file size: %d"
 msgstr ""
 
-#: assets/plupload/jquery.ui.plupload/jquery.ui.plupload.js:283
+#: assets/custom-plupload/jquery.ui.plupload/jquery.ui.plupload.js:291
 #, javascript-format
 msgid "%s already present in the queue."
 msgstr ""
 
-#: assets/plupload/jquery.ui.plupload/jquery.ui.plupload.js:287
+#: assets/custom-plupload/jquery.ui.plupload/jquery.ui.plupload.js:295
 #, javascript-format
 msgid ""
 "Upload element accepts only %d file(s) at a time. Extra files were "
 "stripped."
 msgstr ""
 
-#: assets/plupload/jquery.ui.plupload/jquery.ui.plupload.js:291
+#: assets/custom-plupload/jquery.ui.plupload/jquery.ui.plupload.js:299
 msgid "Image format either wrong or not supported."
 msgstr ""
 
-#: assets/plupload/jquery.ui.plupload/jquery.ui.plupload.js:295
+#: assets/custom-plupload/jquery.ui.plupload/jquery.ui.plupload.js:303
 msgid "Runtime ran out of available memory."
 msgstr ""
 
-#: assets/plupload/jquery.ui.plupload/jquery.ui.plupload.js:304
+#: assets/custom-plupload/jquery.ui.plupload/jquery.ui.plupload.js:312
 msgid "Upload URL might be wrong or doesn't exist."
 msgstr ""
 
-#: assets/plupload/jquery.ui.plupload/jquery.ui.plupload.js:599
+#: assets/custom-plupload/jquery.ui.plupload/jquery.ui.plupload.js:607
 msgid "Close"
 msgstr ""
 
