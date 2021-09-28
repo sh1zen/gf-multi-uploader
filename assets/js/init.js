@@ -263,9 +263,6 @@ function downloadFromAjaxPost_XHR(url, params, headers) {
 
                             files.forEach(function (file) {
 
-                                //Remove hidden gforms input for this file
-                                $("input[name=" + file.id + "_tname]").remove();
-
                                 if (file.wpid) {
 
                                     $.ajax({
@@ -275,10 +272,12 @@ function downloadFromAjaxPost_XHR(url, params, headers) {
                                             action: 'gfmu_delete_file',
                                             nonce: option.params.nonce,
                                             file_id: file.id,
+                                            tmp_name: file.target_name,
                                             file_wpid: file.wpid
                                         }
                                     }).done(function (response) {
-                                        console.log(response);
+                                        //Remove hidden gforms input for this file
+                                        $("input[name=" + file.id + "_tname]").remove();
                                     });
                                 }
                             });
