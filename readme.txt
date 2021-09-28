@@ -3,9 +3,9 @@ Contributors: sh1zen
 Tags: gravity forms, gravity forms file upload, gravity forms file uploader, gravity forms uploader, plupload, gravity forms videos
 Donate link: https://www.paypal.com/donate?business=dev.sh1zen%40outlook.it&item_name=Thank+you+in+advanced+for+the+kind+donations.+You+will+sustain+me+building+better+software.&currency_code=EUR
 Requires at least: 4.2.0
-Tested up to: 5.7
+Tested up to: 5.8
 Requires PHP: 5.3
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GNU v3.0 License
 URI: https://github.com/sh1zen/wp-optimizer/blob/master/LICENSE
 
@@ -13,7 +13,11 @@ Chunked Multiple file uploads, from images, videos to pdf. Files stored in WP Me
 
 == Description ==
 
-This is an advanced upload plugin for those who need a little more than the default multi file upload of Gravity Forms.
+This is an advanced upload plugin for those who need a little more than the default multi file upload of Gravity Forms. 
+
+The plugin options page provides you with granular control over many Plupload parameters from file extension filters to chunked uploading and runtimes. 
+
+All files are uploaded to the WordPress media library on successful form submission making for easy access and management. 
 
 **FEATURES**
 
@@ -29,7 +33,7 @@ This is an advanced upload plugin for those who need a little more than the defa
 **DONATIONS**
 
 This plugin is free and always will be, but if you are feeling generous and want to show your support, you can buy me a
-beer or coffee [here](https://www.paypal.me/sh1zen), I will really appreciate it.
+beer or coffee [here](ttps://www.paypal.com/donate?business=dev.sh1zen%40outlook.it&item_name=Thank+you+in+advanced+for+the+kind+donations.+You+will+sustain+me+building+better+software.&currency_code=EUR), I will really appreciate it.
 
 == Installation ==
 
@@ -82,17 +86,20 @@ Use 'gfmu_uploader_i18n_script' filter to select language for Plupload:
 
 add_filter( 'gfmu_uploader_i18n_script', 'plupload_i18n' );
 function plupload_i18n( $i18n_filename ) {
-	return 'es';
+    return 'es';
 }
 
 == Upgrade Notice ==
 
-= 1.0 =
+= 1.0.0 =
 First public release.
 
 == Changelog ==
 
-= 1.0 =
+= 1.0.1 =
+Updated some functionality.
+
+= 1.0.0 =
 First public release.
 
 == Hooks ==
