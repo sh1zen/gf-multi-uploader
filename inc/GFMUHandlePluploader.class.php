@@ -38,33 +38,36 @@ class GFMUHandlePluploader
 
         $file = substr(sanitize_text_field($_POST['file_id']), 2);
 
+        $tmp_name = sanitize_text_field($_POST['tmp_name']);
+
         $doing_meta = (isset($_POST['get_by_meta']) and !empty($_POST['get_by_meta']));
 
-        if (!$post_id) {
+        if ($post_id) {
 
-            if (file_exists($this->cache['upload_dir'] . $file)) {
-                @unlink($this->cache['upload_dir'] . $file);
+            if ($doing_meta) {
+                /* $images = maybe_unserialize(get_metadata('post', $post_id, sanitize_text_field($_POST['get_by_meta']), true));
+
+                 if (($key = array_search($post_id, $images)) !== false) {
+                     unset($images[$key]);
+
+                     update_metadata('post', )
+
+                     $this->send_ajax_response($file);
+                 }*/
+            }
+            elseif ($post = wp_delete_attachment($post_id, true)) {
+                clean_post_cache($post);
+                $this->send_ajax_response($file);
+            }
+        }
+        else {
+            if (file_exists($this->cache['upload_dir'] . $tmp_name)) {
+                @unlink($this->cache['upload_dir'] . $tmp_name);
                 $this->send_ajax_response($file);
             }
             else {
                 $this->send_ajax_response('false');
             }
-        }
-
-        if ($doing_meta) {
-            /* $images = maybe_unserialize(get_metadata('post', $post_id, sanitize_text_field($_POST['get_by_meta']), true));
-
-             if (($key = array_search($post_id, $images)) !== false) {
-                 unset($images[$key]);
-
-                 update_metadata('post', )
-
-                 $this->send_ajax_response($file);
-             }*/
-        }
-        elseif ($post = wp_delete_attachment($post_id, true)) {
-            clean_post_cache($post);
-            $this->send_ajax_response($file);
         }
 
         $this->send_ajax_response('false');

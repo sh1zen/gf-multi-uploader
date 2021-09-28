@@ -5,7 +5,7 @@ Donate link: https://www.paypal.com/donate?business=dev.sh1zen%40outlook.it&item
 Requires at least: 4.2.0
 Tested up to: 5.8
 Requires PHP: 5.3
-Stable tag: 1.0.2
+Stable tag: 1.0.3
 License: GNU v3.0 License
 URI: https://github.com/sh1zen/wp-optimizer/blob/master/LICENSE
 
@@ -91,13 +91,15 @@ function plupload_i18n( $i18n_filename ) {
 
 == Upgrade Notice ==
 
-= 1.0.0 =
-First public release.
+= 1.0.3 =
+Bug fixing
 
 == Changelog ==
 
-= 1.0.1 =
-Updated some functionality.
+= 1.0.3 =
+updated translations.
+improved upload performances
+fixed a bug reported during delete operation
 
 = 1.0.0 =
 First public release.
