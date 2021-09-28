@@ -477,7 +477,7 @@ class GFMUAddon extends GFAddOn
                 //Register plupload init script
                 array(
                     'handle'  => 'gfmu-pluploader-init',
-                    'src'     => GFMU_PLUGIN_URL . "assets/js/init_plupload_jquery_ui{$min}.js",
+                    'src'     => GFMU_PLUGIN_URL . "assets/js/init{$min}.js",
                     'version' => $this->_version,
                     'deps'    => array('jquery', 'plupload', 'plupload-all'),
                     'enqueue' => array(
