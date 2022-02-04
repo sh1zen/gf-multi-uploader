@@ -79,7 +79,7 @@ class GFMU_FileUploader
      * Process the upload.
      * @param string $uploadDirectory Target directory.
      * @param string $name Overwrites the name of the file.
-     * @return array|bool|bool[]|mixed
+     * @return array|bool|bool[]
      */
     public function handleUpload($uploadDirectory, $name = null)
     {

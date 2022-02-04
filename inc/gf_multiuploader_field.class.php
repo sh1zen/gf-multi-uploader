@@ -9,7 +9,7 @@ class GF_MultiUploader_Field extends GF_Field
     /**
      * @var string $type The field type.
      */
-    public $type = 'multi-uploader';
+    public string $type = 'multi-uploader';
 
     /**
      * Assign the field button to the Advanced Fields group.
