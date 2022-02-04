@@ -3,9 +3,9 @@ Contributors: sh1zen
 Tags: gravity forms, gravity forms file upload, gravity forms file uploader, gravity forms uploader, plupload, gravity forms videos
 Donate link: https://www.paypal.com/donate?business=dev.sh1zen%40outlook.it&item_name=Thank+you+in+advanced+for+the+kind+donations.+You+will+sustain+me+building+better+software.&currency_code=EUR
 Requires at least: 4.2.0
-Tested up to: 5.8
+Tested up to: 5.9
 Requires PHP: 5.3
-Stable tag: 1.0.3
+Stable tag: 1.0.4
 License: GNU v3.0 License
 URI: https://github.com/sh1zen/wp-optimizer/blob/master/LICENSE
 
@@ -91,10 +91,13 @@ function plupload_i18n( $i18n_filename ) {
 
 == Upgrade Notice ==
 
-= 1.0.3 =
-Bug fixing
+= 1.0.4 =
+Tested up to WordPress 5.9 and PHP 8.1
 
 == Changelog ==
+
+= 1.0.4 =
+Tested up to WordPress 5.9 and PHP 8.1
 
 = 1.0.3 =
 updated translations.

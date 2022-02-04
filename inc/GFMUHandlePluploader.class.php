@@ -496,7 +496,6 @@ class GFMUHandlePluploader
                 'id'     => "o_" . pathinfo($image->guid, PATHINFO_FILENAME),
                 'o_name' => $file_name,
                 't_name' => $image->ID,
-
                 'url'           => $img_thumb_url,
                 'size'          => $file_size,
                 'last_mod_date' => $last_mod,
