@@ -108,14 +108,16 @@ function downloadFromAjaxPost_XHR(url, params, headers) {
                         //Specifiy files to browse for
                         mime_types: [
                             {title: "files", extensions: option.filters.files}
-                        ]
+                        ],
+                        prevent_duplicates: true
                     },
 
                     resize: {
                         width: 1920,
                         height: 1080,
                         quality: 80,
-                        preserve_headers: false
+                        crop: false,
+                        preserve_headers: true
                     },
 
                     // Rename files by clicking on their titles
@@ -123,7 +125,7 @@ function downloadFromAjaxPost_XHR(url, params, headers) {
 
                     thumb_width: 100,
                     thumb_height: 60,
-                    thumb_crop: false,
+                    thumb_crop: true,
 
                     // Sort files
                     sortable: true,
