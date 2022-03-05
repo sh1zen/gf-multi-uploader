@@ -113,8 +113,8 @@ function downloadFromAjaxPost_XHR(url, params, headers) {
                     },
 
                     resize: {
-                        width: 1920,
-                        height: 1080,
+                        width: 3840,
+                        height: 2160,
                         quality: 80,
                         crop: false,
                         preserve_headers: true
