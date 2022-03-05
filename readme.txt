@@ -5,7 +5,7 @@ Donate link: https://www.paypal.com/donate?business=dev.sh1zen%40outlook.it&item
 Requires at least: 4.2.0
 Tested up to: 5.9
 Requires PHP: 5.3
-Stable tag: 1.0.5
+Stable tag: 1.0.6
 License: GNU v3.0 License
 URI: https://github.com/sh1zen/wp-optimizer/blob/master/LICENSE
 
@@ -91,13 +91,13 @@ function plupload_i18n( $i18n_filename ) {
 
 == Upgrade Notice ==
 
-= 1.0.5 =
+= 1.0.6 =
 
-* improved performances and tested up to WordPress 5.9 and PHP 8.1
+* Improved performances and tested up to WordPress 5.9 and PHP 8.1
 
 == Changelog ==
 
-= 1.0.5 =
+= 1.0.6 =
 
 * fixed some bugs
 * tested up to WordPress 5.9 and PHP 8.1
