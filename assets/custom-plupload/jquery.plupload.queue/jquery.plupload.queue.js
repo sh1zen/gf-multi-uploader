@@ -26,7 +26,7 @@ used as it is.
 		$('#uploader').pluploadQueue({
 			url : '../upload.php',
 			filters : [
-				{title : "Image files", extensions : "jpg,gif,png"}
+				{title : "Image files", extensions : "jpg,gif,png,webp"}
 			],
 			rename: true,
 			flash_swf_url : '../../js/Moxie.swf',

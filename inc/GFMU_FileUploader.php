@@ -28,7 +28,7 @@ class GFMU_FileUploader
     {
         $this->options = array_merge([
             'chunksFolder'      => './chunks',
-            'allowedExtensions' => 'jpg,jpeg,png',
+            'allowedExtensions' => 'jpg,jpeg,png,webp',
             'sizeLimit'         => '10mb',
             'maxFiles'          => 1,
             'saveToMeta'        => false,

@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: gfmu-translation\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gf-multi-"
 "uploader/\n"
-"POT-Creation-Date: 2022-03-04 20:03+0100\n"
+"POT-Creation-Date: 2022-04-06 19:51+0200\n"
 "PO-Revision-Date: 2020-05-13 02:34+0200\n"
 "Last-Translator: sh1zen\n"
 "Language-Team: sh1zen\n"
@@ -60,7 +60,7 @@ msgid "Allowed file extensions"
 msgstr ""
 
 #: GFMUAddon.class.php:263
-msgid "Separated with commas (i.e. jpg, gif, png, pdf)"
+msgid "Separated with commas (i.e. webp, jpg, jpeg, gif, png, pdf)"
 msgstr ""
 
 #: GFMUAddon.class.php:274
