@@ -1,11 +1,11 @@
 === Multi Uploader for Gravity Forms ===
 Contributors: sh1zen
-Tags: gravity forms, gravity forms file upload, gravity forms file uploader, gravity forms uploader, plupload, gravity forms videos
+Tags: uploader, gravity forms, file uploader, gravity forms uploader, plupload, upload
 Donate link: https://www.paypal.com/donate?business=dev.sh1zen%40outlook.it&item_name=Thank+you+in+advanced+for+the+kind+donations.+You+will+sustain+me+building+better+software.&currency_code=EUR
 Requires at least: 4.2.0
 Tested up to: 5.9
 Requires PHP: 5.3
-Stable tag: 1.0.6
+Stable tag: 1.0.7
 License: GNU v3.0 License
 URI: https://github.com/sh1zen/wp-optimizer/blob/master/LICENSE
 
@@ -21,14 +21,12 @@ All files are uploaded to the WordPress media library on successful form submiss
 
 **FEATURES**
 
-* ***Filename encryption:***
 * ***Safety:*** validation of both file extension and mime type.
 * ***Privacy:*** filenames changed once added to media library.
 * ***Advanced Customization:*** many options and many hooks to modify any plugin rule.
 * ***Large File Support:*** enabled by chunked file uploads.
 * ***Media library integration:*** all files are uploaded to the Wordpress media library on successful form submission making for easy access and management.
 * ***Entry list creation integration:***  A list of all correctly uploaded files, with relative link.
-
 
 **DONATIONS**
 
@@ -89,19 +87,16 @@ function plupload_i18n( $i18n_filename ) {
     return 'es';
 }
 
-== Upgrade Notice ==
-
-= 1.0.6 =
-
-* Improved performances and tested up to WordPress 5.9 and PHP 8.1
-
 == Changelog ==
+
+= 1.0.7 =
+
+* extended supported image formats to webp
 
 = 1.0.6 =
 
 * fixed some bugs
 * tested up to WordPress 5.9 and PHP 8.1
-
 
 = 1.0.3 =
 

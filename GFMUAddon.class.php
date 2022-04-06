@@ -159,7 +159,7 @@ class GFMUAddon extends GFAddOn
             'max_file_size'      => '10mb',
             'ui_view'            => 'thumbs',
             'chunk_size'         => '2mb',
-            'files_filters'      => "jpg,png,jpeg"
+            'files_filters'      => "jpg,png,jpeg,webp,gif"
         ));
 
         $this->plugin_options = [
@@ -260,7 +260,7 @@ class GFMUAddon extends GFAddOn
                 <input type="text" onkeyup="SetFieldProperty('gfmu_file_extensions', this.value);" size="40"
                        id="gfmu_file_extensions">
                 <div>
-                    <small><?php esc_html_e("Separated with commas (i.e. jpg, gif, png, pdf)", 'gfmu-locale'); ?></small>
+                    <small><?php esc_html_e("Separated with commas (i.e. webp, jpg, jpeg, gif, png, pdf)", 'gfmu-locale'); ?></small>
                 </div>
             </li>
             <li class="gfmu_max_files_setting field_setting">
@@ -441,7 +441,7 @@ class GFMUAddon extends GFAddOn
                         'type'  => 'text',
                         'name'  => 'files_filters',
                         'class' => 'medium',
-                        'value' => 'jpg,jpeg,png',
+                        'value' => 'jpg,jpeg,png,webp,gif',
                     ),
                 ),
             ),
