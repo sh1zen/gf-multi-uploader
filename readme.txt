@@ -1,11 +1,11 @@
 === Multi Uploader for Gravity Forms ===
 Contributors: sh1zen
 Tags: uploader, gravity forms, file uploader, gravity forms uploader, plupload, upload
-Donate link: https://www.paypal.com/donate?business=dev.sh1zen%40outlook.it&item_name=Thank+you+in+advanced+for+the+kind+donations.+You+will+sustain+me+building+better+software.&currency_code=EUR
+Donate link: https://www.paypal.com/donate?business=dev.sh1zen%40outlook.it&item_name=Thank+you+in+advanced+for+the+kind+donations.+You+will+sustain+me+developing+GF-Multi-Uploader.&currency_code=EUR
 Requires at least: 4.2.0
-Tested up to: 5.9
+Tested up to: 6.0
 Requires PHP: 5.3
-Stable tag: 1.0.7
+Stable tag: 1.0.8
 License: GNU v3.0 License
 URI: https://github.com/sh1zen/wp-optimizer/blob/master/LICENSE
 
@@ -31,7 +31,7 @@ All files are uploaded to the WordPress media library on successful form submiss
 **DONATIONS**
 
 This plugin is free and always will be, but if you are feeling generous and want to show your support, you can buy me a
-beer or coffee [here](ttps://www.paypal.com/donate?business=dev.sh1zen%40outlook.it&item_name=Thank+you+in+advanced+for+the+kind+donations.+You+will+sustain+me+building+better+software.&currency_code=EUR), I will really appreciate it.
+beer or coffee [here](ttps://www.paypal.com/donate?business=dev.sh1zen%40outlook.it&item_name=Thank+you+in+advanced+for+the+kind+donations.+You+will+sustain+me+developing+GF-Multi-Uploader.&currency_code=EUR), I will really appreciate it.
 
 == Installation ==
 
@@ -88,6 +88,11 @@ function plupload_i18n( $i18n_filename ) {
 }
 
 == Changelog ==
+
+= 1.0.8 =
+
+* improved performances
+* extended support to WordPress 6.0
 
 = 1.0.7 =
 

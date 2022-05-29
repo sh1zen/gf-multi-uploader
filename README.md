@@ -3,7 +3,7 @@ Welcome to the Gravity Forms Multi Uploader repository on GitHub.
 
 [![Author](https://img.shields.io/badge/author-sh1zen-brightgreen.svg)](https://sh1zen.github.io/)
 ![License: CC-NC](https://img.shields.io/badge/License-CCNC-orange.svg)
-[![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.com/donate?business=dev.sh1zen%40outlook.it&item_name=Thank+you+in+advanced+for+the+kind+donations.+You+will+sustain+me+building+better+software.&currency_code=EUR)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.com/donate?business=dev.sh1zen%40outlook.it&item_name=Thank+you+in+advanced+for+the+kind+donations.+You+will+sustain+me+developing+GF-Multi-Uploader.&currency_code=EUR)
 [![Repo Link](https://img.shields.io/badge/Repo-Link-black.svg)](https://github.com/sh1zen/gf-multi-uploader)
 
 

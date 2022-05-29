@@ -48,33 +48,36 @@ class GFMUAddon extends GFAddOn
 
         $save_to_meta = [];
 
-        $may_attachments = $wpdb->get_col("SELECT ID FROM {$wpdb->posts} WHERE post_parent = '{$post_id}' AND post_type = 'attachment';");
-
         foreach ((array)$fields as $field) {
 
             $media_entries = false;
 
-            if (isset($entry[$field->id]))
+            if (isset($entry[$field->id])) {
                 $media_entries = maybe_unserialize($entry[$field->id]);
+                $media_entries = apply_filters("gfmu_before_attach_uploads", $media_entries, $entry, $field->id);
+            }
 
-            $media_entries = apply_filters("gfmu_before_attach_uploads", $media_entries, $entry, $field->id);
-
-            if (!$media_entries or empty($media_entries))
+            if (empty($media_entries)) {
                 continue;
+            }
 
             foreach ($media_entries as $file_upload_number => $media) {
 
-                if ($media['attachment_id'])
+                if ($media['attachment_id']) {
                     $attachment_id = $media['attachment_id'];
-                else
-                    $attachment_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM {$wpdb->posts} WHERE guid LIKE '%s' AND ID IN (" . implode(',', $may_attachments) . ");", '%' . $wpdb->esc_like($media['t_name']) . '%'));
+                }
+                else {
+                    $attachment_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM {$wpdb->posts} WHERE guid LIKE '%s' AND post_type = 'attachment' AND post_parent = '{$post_id}';", '%' . $wpdb->esc_like($media['t_name']) . '%'));
+                }
 
-                if (!$attachment_id)
+                if (!$attachment_id) {
                     continue;
+                }
 
                 if (!empty($field->gfmu_save_to_meta)) {
                     $save_to_meta[] = $attachment_id;
-                } else {
+                }
+                else {
 
                     wp_update_post(array('ID' => $attachment_id, 'post_parent' => $post_id));
 
@@ -97,14 +100,16 @@ class GFMUAddon extends GFAddOn
         if (RG_CURRENT_PAGE == 'admin-ajax.php') {
 
             //If gravity forms is supported, initialize AJAX
-            if ($this->is_gravityforms_supported() && $meets_requirements['meets_requirements']) {
+            if ($this->is_gravityforms_supported() and $meets_requirements['meets_requirements']) {
                 $this->init_ajax();
             }
-        } elseif (is_admin()) {
+        }
+        elseif (is_admin()) {
             $this->init_admin();
-        } else {
+        }
+        else {
 
-            if ($this->is_gravityforms_supported() && $meets_requirements['meets_requirements']) {
+            if ($this->is_gravityforms_supported() and $meets_requirements['meets_requirements']) {
                 $this->init_frontend();
             }
         }
@@ -193,17 +198,16 @@ class GFMUAddon extends GFAddOn
     {
         $settings = $this->plugin_options;
 
-        // remove last separator
-        $setting_path = rtrim($setting_path, '.');
+        // remove consecutive dots and add a last one for while loop
+        $setting_path = preg_replace('#\.+#', '.', $setting_path . '.');
 
-        while (strlen($setting_path) > 0) {
-
-            $pos = strpos($setting_path, '.');
-
-            if ($pos === false)
-                $pos = strlen($setting_path);
+        while (($pos = strpos($setting_path, '.')) !== false) {
 
             $slug = substr($setting_path, 0, $pos);
+
+            if (empty($slug)) {
+                break;
+            }
 
             if (!isset($settings[$slug])) {
                 return $default;
@@ -211,12 +215,12 @@ class GFMUAddon extends GFAddOn
 
             $settings = $settings[$slug];
 
-            // update search key
-            $setting_path = substr_replace($setting_path, '', 0, $pos + 1);
+            $setting_path = substr($setting_path, $pos + 1);
         }
 
-        if ($default and (is_array($settings) or is_object($settings)))
+        if (is_array($settings) or is_object($settings)) {
             $settings = wp_parse_args($settings, $default);
+        }
 
         return $settings;
     }
@@ -327,7 +331,7 @@ class GFMUAddon extends GFAddOn
                 'label' => ucfirst(pathinfo($file, PATHINFO_FILENAME)),
                 'value' => pathinfo($file, PATHINFO_FILENAME),
             ];
-        }, glob(GFMU_PLUGIN_DIR . 'assets/plupload/i18n/*.js', GLOB_NOSORT));
+        }, glob(GFMU_PLUGIN_DIR . 'assets/custom-plupload/i18n/*.js', GLOB_NOSORT));
 
         return array(
             array(
@@ -461,7 +465,8 @@ class GFMUAddon extends GFAddOn
 
         if (is_admin()) {
             $scripts = array();
-        } else {
+        }
+        else {
             $scripts = array(
 
                 array(
@@ -521,7 +526,8 @@ class GFMUAddon extends GFAddOn
                     )
                 )
             );
-        } else {
+        }
+        else {
             $styles = array(
                 array(
                     'handle'  => 'jquery-ui-css',
