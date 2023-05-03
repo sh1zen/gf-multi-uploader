@@ -17,7 +17,7 @@ class GFMUPluginSetup
             add_action('gform_loaded', ['GFMUPluginSetup', 'boot'], 5);
         }
 
-        self::load_textdomain('gf-multi-uploader');
+        self::load_textdomain();
 
         //Set Activation/Deactivation hooks
         register_activation_hook(__FILE__, array('GFMUPluginSetup', 'plugin_activation'));
@@ -33,20 +33,17 @@ class GFMUPluginSetup
 
     /**
      * Loads text domain for the plugin.
-     *
-     * @return bool
-     * @action plugins_loaded
      */
-    private static function load_textdomain($domain)
+    private static function load_textdomain(): bool
     {
-        $locale = apply_filters('gfmu_plugin_locale', get_locale(), $domain);
+        $locale = apply_filters('gfmu_plugin_locale', get_locale(), 'gf-multi-uploader');
 
-        $mo_file = $domain . '-' . $locale . '.mo';
+        $mo_file = "gf-multi-uploader-{$locale}.mo";
 
-        if (load_textdomain($domain, WP_LANG_DIR . '/plugins/gf-multi-uploader/' . $mo_file))
+        if (load_textdomain('gf-multi-uploader', WP_LANG_DIR . '/plugins/gf-multi-uploader/' . $mo_file))
             return true;
 
-        return load_textdomain($domain, GFMU_PLUGIN_DIR . 'languages/' . $mo_file);
+        return load_textdomain('gf-multi-uploader', GFMU_PLUGIN_DIR . 'languages/' . $mo_file);
     }
 
 }

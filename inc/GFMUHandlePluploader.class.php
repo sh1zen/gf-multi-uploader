@@ -1,8 +1,7 @@
 <?php
 
 //Generate wp attachment meta data
-if (!function_exists('wp_generate_attachment_metadata'))
-    require_once(ABSPATH . 'wp-admin/includes/image.php');
+require_once(ABSPATH . 'wp-admin/includes/image.php');
 
 class GFMUHandlePluploader
 {
@@ -19,7 +18,7 @@ class GFMUHandlePluploader
         $this->cache['upload_dir'] = $this->cache['wp_upload_dir']['basedir'] . '/' . self::$upload_tmp_dir_name . '/';
     }
 
-    public static function getInstance()
+    public static function getInstance(): GFMUHandlePluploader
     {
         if (self::$_instance == null) {
             self::$_instance = new self();
@@ -73,7 +72,7 @@ class GFMUHandlePluploader
         $this->send_ajax_response('false');
     }
 
-    private static function verify_nonce()
+    private static function verify_nonce(): bool
     {
         $nonce_value = isset($_REQUEST['nonce']) ? esc_attr($_REQUEST['nonce']) : null;
 
@@ -181,11 +180,10 @@ class GFMUHandlePluploader
      * pluploader_file_validation_settings
      *
      * Called by $this->pluploader_ajax_submit()
-     * Gets validation options for current field from the gform form meta data
+     * Gets validation options for current field from the gform form metadata
      */
     public function pluploader_server_settings()
     {
-        //Cache the current form ID
         if (!isset($_REQUEST['currentFormID']) or !isset($_REQUEST['currentFieldID']))
             return [];
 
@@ -210,7 +208,6 @@ class GFMUHandlePluploader
             'allowed_mimes'     => get_allowed_mime_types()
         ];
 
-        //Allow devs to hook before we get the form's validation settings
         return apply_filters('gfmu_server_validation_args', $validation_args, $field_obj);
     }
 
@@ -309,11 +306,8 @@ class GFMUHandlePluploader
      *
      * Helper to move a file from one path to another
      * Paths are full paths to a file including filename and ext
-     * @param null $current_path
-     * @param null $destination_path
-     * @return bool
      */
-    private static function move_file($current_path = null, $destination_path = null)
+    private static function move_file($current_path = null, $destination_path = null): bool
     {
         //Init vars
         $result = false;
@@ -344,14 +338,11 @@ class GFMUHandlePluploader
     /**
      * get existing file uploaded
      *
-     * Helper to generate all the hidden field html and javacript local vars
-     * requied to place a file already on the tmp folder back into an instance
+     * Helper to generate all the hidden field html and javascript local vars
+     * required to place a file already on the tmp folder back into an instance
      * of plupload.
-     * @param $field_id
-     * @param array $args
-     * @return array
      */
-    public function get_existing_file_uploaded($field_id, $args = [])
+    public function get_existing_file_uploaded($field_id, array $args = []): array
     {
         $file_data = $this->get_post_file_uploaded($field_id, true);
 
@@ -362,7 +353,7 @@ class GFMUHandlePluploader
         return $file_data;
     }
 
-    public function get_post_file_uploaded($field_id, $db_search = false)
+    public function get_post_file_uploaded($field_id, $db_search = false): array
     {
         global $wpdb;
 
@@ -418,7 +409,7 @@ class GFMUHandlePluploader
         return $file_data;
     }
 
-    public function get_raw_posted_data($field_id)
+    public function get_raw_posted_data($field_id): array
     {
         if (!isset($_POST["input_{$field_id}"]) or !is_array($_POST["input_{$field_id}"])) {
             return [];
@@ -427,7 +418,7 @@ class GFMUHandlePluploader
         return array_map('sanitize_file_name', $_POST["input_{$field_id}"]);
     }
 
-    public function get_uploaded_media($args = [])
+    public function get_uploaded_media($args = []): array
     {
         $args = array_merge([
             'post_id'     => false,

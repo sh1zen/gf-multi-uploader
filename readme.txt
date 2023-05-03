@@ -2,10 +2,10 @@
 Contributors: sh1zen
 Tags: uploader, gravity forms, file uploader, gravity forms uploader, plupload, upload
 Donate link: https://www.paypal.com/donate?business=dev.sh1zen%40outlook.it&item_name=Thank+you+in+advanced+for+the+kind+donations.+You+will+sustain+me+developing+GF-Multi-Uploader.&currency_code=EUR
-Requires at least: 4.2.0
-Tested up to: 6.0
-Requires PHP: 5.3
-Stable tag: 1.0.8
+Requires at least: 5.0
+Tested up to: 6.3
+Requires PHP: 7.0
+Stable tag: 1.0.10
 License: GNU v3.0 License
 URI: https://github.com/sh1zen/wp-optimizer/blob/master/LICENSE
 
@@ -25,13 +25,13 @@ All files are uploaded to the WordPress media library on successful form submiss
 * ***Privacy:*** filenames changed once added to media library.
 * ***Advanced Customization:*** many options and many hooks to modify any plugin rule.
 * ***Large File Support:*** enabled by chunked file uploads.
-* ***Media library integration:*** all files are uploaded to the Wordpress media library on successful form submission making for easy access and management.
+* ***Media library integration:*** all files are uploaded to the WordPress media library on successful form submission making for easy access and management.
 * ***Entry list creation integration:***  A list of all correctly uploaded files, with relative link.
 
 **DONATIONS**
 
 This plugin is free and always will be, but if you are feeling generous and want to show your support, you can buy me a
-beer or coffee [here](ttps://www.paypal.com/donate?business=dev.sh1zen%40outlook.it&item_name=Thank+you+in+advanced+for+the+kind+donations.+You+will+sustain+me+developing+GF-Multi-Uploader.&currency_code=EUR), I will really appreciate it.
+beer or coffee [here](https://www.paypal.com/donate?business=dev.sh1zen%40outlook.it&item_name=Thank+you+in+advanced+for+the+kind+donations.+You+will+sustain+me+developing+GF-Multi-Uploader.&currency_code=EUR), I will really appreciate it.
 
 == Installation ==
 
@@ -88,6 +88,20 @@ function plupload_i18n( $i18n_filename ) {
 }
 
 == Changelog ==
+
+= 1.0.10 =
+
+* extended support to WordPress 6.3
+* extended support to PHP 8.2
+* moved minimum PHP supported version to 7.0
+* moved minimum WordPress supported version to 5.0
+* updated translations
+* improved performances
+
+= 1.0.9 =
+
+* extended support to WordPress 6.1
+* updated translations
 
 = 1.0.8 =
 

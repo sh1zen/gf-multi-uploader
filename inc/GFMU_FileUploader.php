@@ -7,7 +7,7 @@
  *
  *  1. Creates plupload tmp folder in uploads if not created
  *  2. Adds index.php
- *  3. Validates file extension and mime type against wordpress allowed mimes
+ *  3. Validates file extension and mime type against WordPress allowed mimes
  *  4. Handles single or chunked upload of files
  *  5. Also runs a tmp folder cleanup after 1 week or every 1000 requests
  */
@@ -16,10 +16,9 @@ class GFMU_FileUploader
     public $allowedExtensions = array();
 
     public $inputName = 'file';
-    public $maxFileAge = 5 * 3600;
+    public $maxFileAge = 18000;
     public $chunksCleanupProbability = 1000;
     public $chunksExpireIn = 604800; // Once in 1000 requests on avg
-
     protected $uploadName;
     private $options;
     private $uuid = null;
@@ -44,9 +43,8 @@ class GFMU_FileUploader
 
     /**
      * Converts a given size with units to bytes.
-     * @param string $str
      */
-    protected function toBytes($str)
+    protected function toBytes($str): int
     {
         $str = preg_replace('/[^0-9kmgtb]/', '', strtolower($str));
 
@@ -68,20 +66,12 @@ class GFMU_FileUploader
     }
 
     /**
-     * Get the name of the uploaded file
-     */
-    public function getUploadName()
-    {
-        return $this->uploadName;
-    }
-
-    /**
      * Process the upload.
      * @param string $uploadDirectory Target directory.
-     * @param string $name Overwrites the name of the file.
+     * @param string|null $name Overwrites the name of the file.
      * @return array|bool|bool[]
      */
-    public function handleUpload($uploadDirectory, $name = null)
+    public function handleUpload(string $uploadDirectory, string $name = '')
     {
         //Cache upload id for current file
         $this->uuid = current(explode('.', $this->getName()));
@@ -159,13 +149,13 @@ class GFMU_FileUploader
         // Get size and name
         $size = $_FILES[$this->inputName]['size'];
 
-        if ($name === null) {
+        if (empty($name)) {
             $name = $this->getName();
         }
 
         // Validate name
 
-        if ($name === null || $name === '') {
+        if (empty($name)) {
             return array(
                 'result'   => 'error',
                 'file_uid' => $this->uuid,
@@ -317,7 +307,7 @@ class GFMU_FileUploader
                         }
 
                         //Remove the chunk tmp folder for this file
-                        rmdir($targetFolder);
+                        @rmdir($targetFolder);
 
                         //Return that all is ok
                         return array(
@@ -437,17 +427,16 @@ class GFMU_FileUploader
 
     /**
      * Removes a directory and all files contained inside
-     * @param string $dir
      */
-    protected function removeDir($dir)
+    protected function removeDir(string $dir)
     {
         foreach (scandir($dir) as $item) {
             if ($item == "." || $item == "..")
                 continue;
 
-            unlink($dir . DIRECTORY_SEPARATOR . $item);
+            @unlink($dir . DIRECTORY_SEPARATOR . $item);
         }
-        rmdir($dir);
+        @rmdir($dir);
     }
 
     /**
@@ -456,63 +445,68 @@ class GFMU_FileUploader
      * @param string $uploadDirectory Target directory
      * @param string $filename The name of the file to use.
      */
-    protected function getUniqueTargetPath($uploadDirectory, $filename)
+    protected function getUniqueTargetPath(string $uploadDirectory, string $filename)
     {
-        // Allow only one process at the time to get a unique file name, otherwise
-        // if multiple people would upload a file with the same name at the same time
-        // only the latest would be saved.
+        $result = [];
 
-        if (function_exists('sem_acquire')) {
-            $lock = sem_get(ftok(__FILE__, 'u'));
-            sem_acquire($lock);
-        }
+        list($result['file_path'], $result['file_name']) = $this->unique_filename($this->normalize_path($uploadDirectory . DIRECTORY_SEPARATOR . $filename), $this->options['rename_files']);
 
-        $pathinfo = pathinfo($filename);
-        $base = $pathinfo['filename'];
-        $ext = isset($pathinfo['extension']) ? $pathinfo['extension'] : '';
-        $ext = $ext == '' ? $ext : '.' . $ext;
-
-        $unique = $base;
-        $suffix = 0;
-
-        //Create a new random name for file - security reasons
-        if (isset($filename) and $this->options['rename_files']) {
-
-            $unique = md5($filename);
-
-            $result['file_path'] = $uploadDirectory . DIRECTORY_SEPARATOR . $unique . $ext;
-
-        }
-        elseif ($filename and !$this->options['rename_files']) {
-
-            //Cache destination full file path
-            $_file_path = $uploadDirectory . DIRECTORY_SEPARATOR . $unique . $ext;
-
-            //Check if there is a file with the same name in tmp folder
-            if (file_exists($_file_path)) {
-
-                //Put file in unique dir
-                $suffix += rand(1, 999);
-                $unique = $unique . '_' . $suffix;
-            }
-
-            $result['file_path'] = $uploadDirectory . DIRECTORY_SEPARATOR . $unique . $ext;
-        }
-
-        //Cache filename
-        $result['file_name'] = $unique . $ext;
-
-        // Create an empty target file
-        if (!touch($result['file_path'])) {
-            // Failed
+        if (!$result['file_path']) {
             $result = false;
         }
 
-        if (function_exists('sem_release')) {
-            sem_release($lock);
+        return $result;
+    }
+
+    private function unique_filename($filename, $obfuscation = false)
+    {
+        $iter = 0;
+
+        $path_parts = pathinfo($filename);
+
+        $filename = $obfuscation ? md5(time() . "#bnoe68gc5zw684n4i#" . $path_parts['filename']) : $path_parts['filename'];
+
+        $path = $path_parts['dirname'] === '.' ? '' : "{$path_parts['dirname']}/";
+
+        do {
+
+            $out_name = $iter > 0 ? "{$filename}-{$iter}" : $filename;
+
+            $iter++;
+
+        } while (file_exists("{$path}{$out_name}.{$path_parts['extension']}"));
+
+        return ["{$path}{$out_name}.{$path_parts['extension']}", "{$out_name}.{$path_parts['extension']}"];
+    }
+
+    private function normalize_path($path, $trailing_slash = false)
+    {
+        $wrapper = '';
+
+        // Remove the trailing slash
+        if (!$trailing_slash) {
+            $path = rtrim($path, '/');
+        }
+        else {
+            $path .= '/';
         }
 
-        return $result;
+        if (wp_is_stream($path)) {
+            list($wrapper, $path) = explode('://', $path, 2);
+
+            $wrapper .= '://';
+        }
+        else {
+            // Windows paths should uppercase the drive letter.
+            if (':' === substr($path, 1, 1)) {
+                $path = ucfirst($path);
+            }
+        }
+
+        // Standardise all paths to use '/' and replace multiple slashes down to a singular.
+        $path = preg_replace('#(?<=.)[/\\\]+#', '/', $path);
+
+        return $wrapper . $path;
     }
 
     /**
@@ -521,7 +515,7 @@ class GFMU_FileUploader
      * Helper to move a file from one path to another
      * Paths are full paths to a file including filename and ext
      */
-    private function move_file($current_path = null, $destination_path = null)
+    private function move_file($current_path = null, $destination_path = null): bool
     {
         //Init vars
         $result = false;
@@ -551,28 +545,27 @@ class GFMU_FileUploader
     /**
      * validateUploadedFile
      *
-     * Validates both a files extension and then the mime type
-     * Mime type is compared to the wordpress allowed mime types array
+     * Validates both a files extension and then the mime type is compared to the WordPress allowed mime types array
      *
      * Note that the method prefers to use finfo to check the mime type but falls
      * back to mime_content_type() and then no mime validation if neither function is available
      *
-     * @param string $name
-     * @param string $file_path - defaults to $_FILES[$this->inputName]['tmp_name']
+     * @param string|null $name
+     * @param string|null $file_path - defaults to $_FILES[$this->inputName]['tmp_name']
      * @return array|bool
      */
-    protected function validateUploadedFile($name = null, $file_path = null)
+    protected function validateUploadedFile(string $name = '', string $file_path = '')
     {
         //Init vars
         $mime_type = null;
 
-        if (!isset($file_path)) {
+        if (empty($file_path)) {
             $file_path = $_FILES[$this->inputName]['tmp_name'];
         }
 
         // Validate file extension
         $pathinfo = pathinfo($name);
-        $ext = isset($pathinfo['extension']) ? $pathinfo['extension'] : '';
+        $ext = $pathinfo['extension'] ?? '';
 
         if ($this->options['allowedExtensions'] and !in_array(strtolower($ext), array_map("strtolower", $this->options['allowedExtensions']))) {
             $these = implode(', ', $this->options['allowedExtensions']);
@@ -610,7 +603,6 @@ class GFMU_FileUploader
                     'message' => sprintf(__("File Type Error: %s.", "gfmu-locale"), $mime_type)
                 )
             );
-
         }
         return true;
     }

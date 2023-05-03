@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: gfmu-translation\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gf-multi-"
 "uploader/\n"
-"POT-Creation-Date: 2022-07-06 12:00+0200\n"
+"POT-Creation-Date: 2023-05-03 15:40+0200\n"
 "PO-Revision-Date: 2020-05-13 02:34+0200\n"
 "Last-Translator: sh1zen\n"
 "Language-Team: sh1zen\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.1\n"
+"X-Generator: Poedit 3.2.2\n"
 "X-Poedit-Basepath: ..\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 "X-Poedit-KeywordsList: __;_e;_ex;_x;_n;_nx;_n_noop;_nx_noop;esc_html__;"
@@ -21,146 +21,146 @@ msgstr ""
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPathExcluded-0: languages\n"
 
-#: GFMUAddon.class.php:240 GFMUAddon.class.php:309
+#: GFMUAddon.class.php:235 GFMUAddon.class.php:304
 msgid "Save to meta"
 msgstr ""
 
-#: GFMUAddon.class.php:240
+#: GFMUAddon.class.php:235
 msgid ""
 "If it is set, will save all the data about uploads into the specified "
 "meta."
 msgstr ""
 
-#: GFMUAddon.class.php:241 GFMUAddon.class.php:272
+#: GFMUAddon.class.php:236 GFMUAddon.class.php:267
 msgid "Max number of files"
 msgstr ""
 
-#: GFMUAddon.class.php:241
+#: GFMUAddon.class.php:236
 msgid "Specify the max number of files the user can upload."
 msgstr ""
 
-#: GFMUAddon.class.php:242
+#: GFMUAddon.class.php:237
 msgid "Max file size"
 msgstr ""
 
-#: GFMUAddon.class.php:242
+#: GFMUAddon.class.php:237
 msgid "Specify the max size for each file uploaded."
 msgstr ""
 
-#: GFMUAddon.class.php:243
+#: GFMUAddon.class.php:238
 msgid "Allowed extensions"
 msgstr ""
 
-#: GFMUAddon.class.php:243
+#: GFMUAddon.class.php:238
 msgid "Specify the allowed extensions."
 msgstr ""
 
-#: GFMUAddon.class.php:261
+#: GFMUAddon.class.php:256
 msgid "Allowed file extensions"
 msgstr ""
 
-#: GFMUAddon.class.php:267
+#: GFMUAddon.class.php:262
 msgid "Separated with commas (i.e. webp, jpg, jpeg, gif, png, pdf)"
 msgstr ""
 
-#: GFMUAddon.class.php:278
+#: GFMUAddon.class.php:273
 msgid "Number of files users can upload."
 msgstr ""
 
-#: GFMUAddon.class.php:283
+#: GFMUAddon.class.php:278
 msgid "Maximum file size (MB)"
 msgstr ""
 
-#: GFMUAddon.class.php:289
+#: GFMUAddon.class.php:284
 msgid "Max file size, support KB, MB, GB units."
 msgstr ""
 
-#: GFMUAddon.class.php:315
+#: GFMUAddon.class.php:310
 msgid ""
 "If it's set will save the uploaded data into the specified meta value, "
 "comma separated."
 msgstr ""
 
-#: GFMUAddon.class.php:338
+#: GFMUAddon.class.php:331
 msgid "Multi Uploader Settings"
 msgstr ""
 
-#: GFMUAddon.class.php:341
+#: GFMUAddon.class.php:334
 msgid "Auto upload"
 msgstr ""
 
-#: GFMUAddon.class.php:344
+#: GFMUAddon.class.php:337
 msgid "By selecting this each file will be auto uploaded."
 msgstr ""
 
-#: GFMUAddon.class.php:347 GFMUAddon.class.php:359
-#: GFMUAddon.class.php:370 GFMUAddon.class.php:382
+#: GFMUAddon.class.php:340 GFMUAddon.class.php:352
+#: GFMUAddon.class.php:363 GFMUAddon.class.php:375
 msgid "Enabled"
 msgstr ""
 
-#: GFMUAddon.class.php:353
+#: GFMUAddon.class.php:346
 msgid "Detect duplicates"
 msgstr ""
 
-#: GFMUAddon.class.php:356
+#: GFMUAddon.class.php:349
 msgid "If enabled, will try to detect if two or more files are the same."
 msgstr ""
 
-#: GFMUAddon.class.php:365
+#: GFMUAddon.class.php:358
 msgid "Drag&Drop"
 msgstr ""
 
-#: GFMUAddon.class.php:376
+#: GFMUAddon.class.php:369
 msgid "Rename files uploaded"
 msgstr ""
 
-#: GFMUAddon.class.php:379
+#: GFMUAddon.class.php:372
 msgid "If enabled will prevent with some security issues."
 msgstr ""
 
-#: GFMUAddon.class.php:388
+#: GFMUAddon.class.php:381
 msgid "Enabled view types"
 msgstr ""
 
-#: GFMUAddon.class.php:393 GFMUAddon.class.php:414
+#: GFMUAddon.class.php:386 GFMUAddon.class.php:407
 msgid "List view"
 msgstr ""
 
-#: GFMUAddon.class.php:398 GFMUAddon.class.php:409
+#: GFMUAddon.class.php:391 GFMUAddon.class.php:402
 msgid "Thumb view"
 msgstr ""
 
-#: GFMUAddon.class.php:404
+#: GFMUAddon.class.php:397
 msgid "Default UI view"
 msgstr ""
 
-#: GFMUAddon.class.php:421
+#: GFMUAddon.class.php:414
 msgid "Plupload locale"
 msgstr ""
 
-#: GFMUAddon.class.php:424
+#: GFMUAddon.class.php:417
 msgid "This is the locale of the plupload form."
 msgstr ""
 
-#: GFMUAddon.class.php:428
+#: GFMUAddon.class.php:421
 msgid "Default max upload files"
 msgstr ""
 
-#: GFMUAddon.class.php:431
+#: GFMUAddon.class.php:424
 msgid "Indicate here the default files upload number."
 msgstr ""
 
-#: GFMUAddon.class.php:436
+#: GFMUAddon.class.php:429
 msgid "Default max upload size"
 msgstr ""
 
-#: GFMUAddon.class.php:439
+#: GFMUAddon.class.php:432
 msgid ""
 "Indicate here the default max upload size, allowed units are KB, MB, "
 "GB."
 msgstr ""
 
-#: GFMUAddon.class.php:444
+#: GFMUAddon.class.php:437
 msgid "Default allowed extensions filters"
 msgstr ""
 
@@ -288,72 +288,72 @@ msgstr ""
 msgid "Close"
 msgstr ""
 
-#: inc/GFMU_FileUploader.php:105
+#: inc/GFMU_FileUploader.php:95
 msgid "Server Error. Max file size too high, try activate chunking."
 msgstr ""
 
-#: inc/GFMU_FileUploader.php:131
+#: inc/GFMU_FileUploader.php:121
 msgid "Server error. Uploads directory isn't writable or executable."
 msgstr ""
 
-#: inc/GFMU_FileUploader.php:154
+#: inc/GFMU_FileUploader.php:144
 msgid ""
 "Server error. Not a multipart request. Please set forceMultipart to "
 "default value (true)."
 msgstr ""
 
-#: inc/GFMU_FileUploader.php:174
+#: inc/GFMU_FileUploader.php:164
 msgid "File name is empty."
 msgstr ""
 
-#: inc/GFMU_FileUploader.php:187
+#: inc/GFMU_FileUploader.php:177
 msgid "File is empty."
 msgstr ""
 
-#: inc/GFMU_FileUploader.php:198
+#: inc/GFMU_FileUploader.php:188
 #, php-format
 msgid "File is too large. Max %s M"
 msgstr ""
 
-#: inc/GFMU_FileUploader.php:239
+#: inc/GFMU_FileUploader.php:229
 msgid "Server error. Chunks directory isn't writable or executable."
 msgstr ""
 
-#: inc/GFMU_FileUploader.php:277
+#: inc/GFMU_FileUploader.php:267
 msgid "Failed to open input stream"
 msgstr ""
 
-#: inc/GFMU_FileUploader.php:291
+#: inc/GFMU_FileUploader.php:281
 msgid "Failed to open chunk destination file"
 msgstr ""
 
-#: inc/GFMU_FileUploader.php:338
+#: inc/GFMU_FileUploader.php:328
 msgid "Failed to move final buffer file"
 msgstr ""
 
-#: inc/GFMU_FileUploader.php:350
+#: inc/GFMU_FileUploader.php:340
 msgid "Error generating final file path"
 msgstr ""
 
-#: inc/GFMU_FileUploader.php:397
+#: inc/GFMU_FileUploader.php:387
 msgid "The upload was cancelled, or server error encountered"
 msgstr ""
 
-#: inc/GFMU_FileUploader.php:585
+#: inc/GFMU_FileUploader.php:578
 #, php-format
 msgid "File has an invalid extension, it should be one of %s."
 msgstr ""
 
-#: inc/GFMU_FileUploader.php:610
+#: inc/GFMU_FileUploader.php:603
 #, php-format
 msgid "File Type Error: %s."
 msgstr ""
 
-#: inc/gf_multiuploader_field.class.php:137
+#: inc/GF_MultiUploader_Field.class.php:124
 msgid "Your browser doesn't have Flash, Silverlight or HTML5 support."
 msgstr ""
 
-#: inc/gf_multiuploader_field.class.php:339
+#: inc/GF_MultiUploader_Field.class.php:322
 #, php-format
 msgid "%s uploads"
 msgstr ""

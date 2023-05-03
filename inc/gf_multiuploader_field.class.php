@@ -9,14 +9,12 @@ class GF_MultiUploader_Field extends GF_Field
     /**
      * @var string $type The field type.
      */
-    public string $type = 'multi-uploader';
+    public $type = 'multi-uploader';
 
     /**
      * Assign the field button to the Advanced Fields group.
-     *
-     * @return array
      */
-    public function get_form_editor_button()
+    public function get_form_editor_button(): array
     {
         return array(
             'group' => 'advanced_fields',
@@ -26,20 +24,16 @@ class GF_MultiUploader_Field extends GF_Field
 
     /**
      * Return the field title, for use in the form editor.
-     *
-     * @return string
      */
-    public function get_form_editor_field_title()
+    public function get_form_editor_field_title(): string
     {
         return 'Multi Uploader';
     }
 
     /**
      * The settings which should be available on the field in the form editor.
-     *
-     * @return array
      */
-    function get_form_editor_field_settings()
+    function get_form_editor_field_settings(): array
     {
         return array(
             'label_setting',
@@ -58,20 +52,16 @@ class GF_MultiUploader_Field extends GF_Field
 
     /**
      * Enable this field for use with conditional logic.
-     *
-     * @return bool
      */
-    public function is_conditional_logic_supported()
+    public function is_conditional_logic_supported(): bool
     {
         return true;
     }
 
     /**
      * The scripts to be included in the form editor.
-     *
-     * @return string
      */
-    public function get_form_editor_inline_script_on_page_render()
+    public function get_form_editor_inline_script_on_page_render(): string
     {
         $plugin_options = GFMUAddon::get_instance()->get_plupload_settings();
 
@@ -108,24 +98,21 @@ class GF_MultiUploader_Field extends GF_Field
      * @param array $form The Form Object currently being processed.
      * @param string|array $value The field value. From default/dynamic population, $_POST, or a resumed incomplete submission.
      * @param null|array $entry Null or the Entry Object currently being edited.
-     *
-     * @return string
      */
-    public function get_field_input($form, $value = '', $entry = null)
+    public function get_field_input($form, $value = '', $entry = null): string
     {
         $field_id = absint($this->id);
-        $form_id = absint($form['id']);
 
         if ($this->is_form_editor()) {
             return "<div class='ginput_container mth_plupload'><span class='gform_drop_instructions'>File Uploader</span></div>";
         }
 
-        $input = $this->setup_gmfu_option_var();
+        $input = $this->setup_gfmu_option_var();
 
         $input .= "<div class='ginput_container mth_plupload'><input name='input_{$field_id}' id='mth_form_pluploader_{$field_id}' type='hidden'/></div>";
 
         $args = [
-            'post_id'     => isset($_GET['gform_post_id']) ? $_GET['gform_post_id'] : 0,
+            'post_id'     => $_GET['gform_post_id'] ?? 0,
             'get_by_meta' => $this->gfmu_save_to_meta
         ];
 
@@ -144,7 +131,7 @@ class GF_MultiUploader_Field extends GF_Field
     /**
      * create the GFMU_options used to pass options to plupload
      */
-    private function setup_gmfu_option_var()
+    private function setup_gfmu_option_var(): string
     {
         $field_id = absint($this->id);
 
@@ -224,10 +211,10 @@ class GF_MultiUploader_Field extends GF_Field
                         echo "'id': '" . esc_attr($file_data['id']) . "',";
                         echo "'o_name': '" . esc_attr($file_data['o_name']) . "',";
                         echo "'t_name': '" . esc_attr($file_data['t_name']) . "',";
-                        echo "'size': '". esc_js($file_data['size'])."',";
-                        echo "'url': '". esc_url($file_data['url'])."',";
-                        echo "'lastModified': new Date('". esc_js($date)."'),";
-                        echo "'wpid': '". esc_js($file_data['wpid'])."',";
+                        echo "'size': '" . esc_js($file_data['size']) . "',";
+                        echo "'url': '" . esc_url($file_data['url']) . "',";
+                        echo "'lastModified': new Date('" . esc_js($date) . "'),";
+                        echo "'wpid': '" . esc_js($file_data['wpid']) . "',";
                         echo "},";
                     }
                 }
@@ -254,10 +241,8 @@ class GF_MultiUploader_Field extends GF_Field
 
     /**
      * Whether this field expects an array during submission.
-     *
-     * @return bool
      */
-    public function is_value_submission_array()
+    public function is_value_submission_array(): bool
     {
         return true;
     }
@@ -326,10 +311,8 @@ class GF_MultiUploader_Field extends GF_Field
      * @param string $field_id The field or input ID currently being processed.
      * @param array $columns The properties for the columns being displayed on the entry list page.
      * @param array $form The Form Object currently being processed.
-     *
-     * @return string
      */
-    public function get_value_entry_list($value, $entry, $field_id, $columns, $form)
+    public function get_value_entry_list($value, $entry, $field_id, $columns, $form): string
     {
         $fields = maybe_unserialize($value);
 
@@ -349,10 +332,8 @@ class GF_MultiUploader_Field extends GF_Field
      * @param bool|false $use_text When processing choice based fields should the choice text be returned instead of the value.
      * @param string $format The format requested for the location the merge is being used. Possible values: html, text or url.
      * @param string $media The location where the value will be displayed. Possible values: screen or email.
-     *
-     * @return string
      */
-    public function get_value_entry_detail($value, $currency = '', $use_text = false, $format = 'html', $media = 'screen')
+    public function get_value_entry_detail($value, $currency = '', $use_text = false, $format = 'html', $media = 'screen'): string
     {
         $value = maybe_unserialize($value);
 

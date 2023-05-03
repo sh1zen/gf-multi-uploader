@@ -24,7 +24,7 @@ class GFMUAddon extends GFAddOn
      */
     private $plugin_options;
 
-    private $pluploaderHandler;
+    private $pluploaderHandler ;
 
     /**
      * Get an instance of this class.
@@ -48,7 +48,7 @@ class GFMUAddon extends GFAddOn
 
         $save_to_meta = [];
 
-        foreach ((array)$fields as $field) {
+        foreach ($fields as $field) {
 
             $media_entries = false;
 
@@ -145,7 +145,7 @@ class GFMUAddon extends GFAddOn
     }
 
     /**
-     * Include the field early so it is available when entry exports are being performed.
+     * Include the field early, so it is available when entry exports are being performed.
      * @throws \Exception
      */
     public function pre_init()
@@ -189,7 +189,7 @@ class GFMUAddon extends GFAddOn
         $this->pluploaderHandler = GFMUHandlePluploader::getInstance();
 
         if ($this->is_gravityforms_supported() and class_exists('GF_Field')) {
-            require_once(GFMU_INC_PATH . 'gf_multiuploader_field.class.php');
+            require_once(GFMU_INC_PATH . 'GF_MultiUploader_Field.class.php');
             GF_Fields::register(new GF_MultiUploader_Field());
         }
     }
@@ -225,17 +225,12 @@ class GFMUAddon extends GFAddOn
         return $settings;
     }
 
-
-    // # FIELD SETTINGS -------------------------------------------------------------------------------------------------
-
     /**
      * Add the tooltips for the field.
      *
      * @param array $tooltips An associative array of tooltips where the key is the tooltip name and the value is the tooltip.
-     *
-     * @return array
      */
-    public function tooltips($tooltips)
+    public function tooltips(array $tooltips): array
     {
         $tooltips['gfmu_save_to_meta'] = sprintf('<h6>%s</h6>%s', esc_html__('Save to meta', 'gfmu-locale'), esc_html__('If it is set, will save all the data about uploads into the specified meta.', 'gfmu-locale'));
         $tooltips['gfmu_max_files'] = sprintf('<h6>%s</h6>%s', esc_html__('Max number of files', 'gfmu-locale'), esc_html__('Specify the max number of files the user can upload.', 'gfmu-locale'));
@@ -251,7 +246,7 @@ class GFMUAddon extends GFAddOn
      * @param int $position The position the settings should be located at.
      * @param int $form_id The ID of the form currently being edited.
      */
-    public function field_standard_settings($position, $form_id)
+    public function field_standard_settings(int $position, int $form_id)
     {
         // Add our custom setting just before the 'Custom CSS Class' setting.
         if ($position == 50) {
@@ -299,7 +294,7 @@ class GFMUAddon extends GFAddOn
      * @param int $position The position the settings should be located at.
      * @param int $form_id The ID of the form currently being edited.
      */
-    public function field_advanced_settings($position, $form_id)
+    public function field_advanced_settings(int $position, int $form_id)
     {
         // Add our custom setting just before the 'Custom CSS Class' setting.
         if ($position == 50) {
@@ -321,10 +316,8 @@ class GFMUAddon extends GFAddOn
 
     /**
      * Configures the settings which should be rendered on the add-on settings tab.
-     *
-     * @return array
      */
-    public function plugin_settings_fields()
+    public function plugin_settings_fields(): array
     {
         $locales = array_map(function ($file) {
             return [
@@ -454,14 +447,16 @@ class GFMUAddon extends GFAddOn
 
     /**
      * Include my_script.js when the form contains a 'simple' type field.
-     *
-     * @return array
      */
-    public function scripts()
+    public function scripts(): array
     {
         $min = ((defined('SCRIPT_DEBUG') and SCRIPT_DEBUG) or isset($_GET['gform_debug'])) ? '' : '.min';
 
-        $plupload_i18n_script = apply_filters('gfmu_uploader_i18n_script', $this->plugin_options['locale']);
+        $plupload_i18n_script = apply_filters('gfmu_uploader_i18n_script', $this->plugin_options['locale'], 'en');
+
+        if (empty($plupload_i18n_script)) {
+            $plupload_i18n_script = 'en';
+        }
 
         if (is_admin()) {
             $scripts = array();
@@ -511,7 +506,7 @@ class GFMUAddon extends GFAddOn
      *
      * @return array
      */
-    public function styles()
+    public function styles(): array
     {
         $min = defined('SCRIPT_DEBUG') && SCRIPT_DEBUG || isset($_GET['gform_debug']) ? '' : '.min';
 
