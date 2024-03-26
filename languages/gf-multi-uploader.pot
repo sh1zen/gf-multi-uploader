@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: gfmu-translation\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gf-multi-"
 "uploader/\n"
-"POT-Creation-Date: 2023-05-03 15:40+0200\n"
+"POT-Creation-Date: 2024-03-26 12:35+0100\n"
 "PO-Revision-Date: 2020-05-13 02:34+0200\n"
 "Last-Translator: sh1zen\n"
 "Language-Team: sh1zen\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.2.2\n"
+"X-Generator: Poedit 3.4.2\n"
 "X-Poedit-Basepath: ..\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 "X-Poedit-KeywordsList: __;_e;_ex;_x;_n;_nx;_n_noop;_nx_noop;esc_html__;"
@@ -21,146 +21,146 @@ msgstr ""
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPathExcluded-0: languages\n"
 
-#: GFMUAddon.class.php:235 GFMUAddon.class.php:304
+#: GFMUAddon.class.php:231 GFMUAddon.class.php:300
 msgid "Save to meta"
 msgstr ""
 
-#: GFMUAddon.class.php:235
+#: GFMUAddon.class.php:231
 msgid ""
 "If it is set, will save all the data about uploads into the specified "
 "meta."
 msgstr ""
 
-#: GFMUAddon.class.php:236 GFMUAddon.class.php:267
+#: GFMUAddon.class.php:232 GFMUAddon.class.php:263
 msgid "Max number of files"
 msgstr ""
 
-#: GFMUAddon.class.php:236
+#: GFMUAddon.class.php:232
 msgid "Specify the max number of files the user can upload."
 msgstr ""
 
-#: GFMUAddon.class.php:237
+#: GFMUAddon.class.php:233
 msgid "Max file size"
 msgstr ""
 
-#: GFMUAddon.class.php:237
+#: GFMUAddon.class.php:233
 msgid "Specify the max size for each file uploaded."
 msgstr ""
 
-#: GFMUAddon.class.php:238
+#: GFMUAddon.class.php:234
 msgid "Allowed extensions"
 msgstr ""
 
-#: GFMUAddon.class.php:238
+#: GFMUAddon.class.php:234
 msgid "Specify the allowed extensions."
 msgstr ""
 
-#: GFMUAddon.class.php:256
+#: GFMUAddon.class.php:252
 msgid "Allowed file extensions"
 msgstr ""
 
-#: GFMUAddon.class.php:262
+#: GFMUAddon.class.php:258
 msgid "Separated with commas (i.e. webp, jpg, jpeg, gif, png, pdf)"
 msgstr ""
 
-#: GFMUAddon.class.php:273
+#: GFMUAddon.class.php:269
 msgid "Number of files users can upload."
 msgstr ""
 
-#: GFMUAddon.class.php:278
+#: GFMUAddon.class.php:274
 msgid "Maximum file size (MB)"
 msgstr ""
 
-#: GFMUAddon.class.php:284
+#: GFMUAddon.class.php:280
 msgid "Max file size, support KB, MB, GB units."
 msgstr ""
 
-#: GFMUAddon.class.php:310
+#: GFMUAddon.class.php:306
 msgid ""
 "If it's set will save the uploaded data into the specified meta value, "
 "comma separated."
 msgstr ""
 
-#: GFMUAddon.class.php:331
+#: GFMUAddon.class.php:327
 msgid "Multi Uploader Settings"
 msgstr ""
 
-#: GFMUAddon.class.php:334
+#: GFMUAddon.class.php:330
 msgid "Auto upload"
 msgstr ""
 
-#: GFMUAddon.class.php:337
+#: GFMUAddon.class.php:333
 msgid "By selecting this each file will be auto uploaded."
 msgstr ""
 
-#: GFMUAddon.class.php:340 GFMUAddon.class.php:352
-#: GFMUAddon.class.php:363 GFMUAddon.class.php:375
+#: GFMUAddon.class.php:336 GFMUAddon.class.php:348
+#: GFMUAddon.class.php:359 GFMUAddon.class.php:371
 msgid "Enabled"
 msgstr ""
 
-#: GFMUAddon.class.php:346
+#: GFMUAddon.class.php:342
 msgid "Detect duplicates"
 msgstr ""
 
-#: GFMUAddon.class.php:349
+#: GFMUAddon.class.php:345
 msgid "If enabled, will try to detect if two or more files are the same."
 msgstr ""
 
-#: GFMUAddon.class.php:358
+#: GFMUAddon.class.php:354
 msgid "Drag&Drop"
 msgstr ""
 
-#: GFMUAddon.class.php:369
+#: GFMUAddon.class.php:365
 msgid "Rename files uploaded"
 msgstr ""
 
-#: GFMUAddon.class.php:372
+#: GFMUAddon.class.php:368
 msgid "If enabled will prevent with some security issues."
 msgstr ""
 
-#: GFMUAddon.class.php:381
+#: GFMUAddon.class.php:377
 msgid "Enabled view types"
 msgstr ""
 
-#: GFMUAddon.class.php:386 GFMUAddon.class.php:407
+#: GFMUAddon.class.php:382 GFMUAddon.class.php:403
 msgid "List view"
 msgstr ""
 
-#: GFMUAddon.class.php:391 GFMUAddon.class.php:402
+#: GFMUAddon.class.php:387 GFMUAddon.class.php:398
 msgid "Thumb view"
 msgstr ""
 
-#: GFMUAddon.class.php:397
+#: GFMUAddon.class.php:393
 msgid "Default UI view"
 msgstr ""
 
-#: GFMUAddon.class.php:414
+#: GFMUAddon.class.php:410
 msgid "Plupload locale"
 msgstr ""
 
-#: GFMUAddon.class.php:417
+#: GFMUAddon.class.php:413
 msgid "This is the locale of the plupload form."
 msgstr ""
 
-#: GFMUAddon.class.php:421
+#: GFMUAddon.class.php:417
 msgid "Default max upload files"
 msgstr ""
 
-#: GFMUAddon.class.php:424
+#: GFMUAddon.class.php:420
 msgid "Indicate here the default files upload number."
 msgstr ""
 
-#: GFMUAddon.class.php:429
+#: GFMUAddon.class.php:425
 msgid "Default max upload size"
 msgstr ""
 
-#: GFMUAddon.class.php:432
+#: GFMUAddon.class.php:428
 msgid ""
 "Indicate here the default max upload size, allowed units are KB, MB, "
 "GB."
 msgstr ""
 
-#: GFMUAddon.class.php:437
+#: GFMUAddon.class.php:433
 msgid "Default allowed extensions filters"
 msgstr ""
 

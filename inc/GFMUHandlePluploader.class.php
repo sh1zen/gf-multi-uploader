@@ -1,14 +1,18 @@
 <?php
 
 //Generate wp attachment meta data
-require_once(ABSPATH . 'wp-admin/includes/image.php');
+
+if (!function_exists('wp_generate_attachment_metadata')) {
+    require_once(ABSPATH . 'wp-admin/includes/image.php');
+    require_once(ABSPATH . 'wp-admin/includes/media.php');
+}
 
 class GFMUHandlePluploader
 {
-    public static $submit_nonce_key = 'gfmu-submit-nonce';
-    private static $upload_tmp_dir_name = 'gfmu-uploads-tmp';
+    public static string $submit_nonce_key = 'gfmu-submit-nonce';
+    private static string $upload_tmp_dir_name = 'gfmu-uploads-tmp';
 
-    private static $_instance;
+    private static ?GFMUHandlePluploader $_instance = null;
 
     private $cache;
 
@@ -20,14 +24,14 @@ class GFMUHandlePluploader
 
     public static function getInstance(): GFMUHandlePluploader
     {
-        if (self::$_instance == null) {
+        if (!self::$_instance) {
             self::$_instance = new self();
         }
 
         return self::$_instance;
     }
 
-    public function plupload_ajax_delete_file()
+    public function plupload_ajax_delete_file(): void
     {
         if (!self::verify_nonce()) {
             $this->send_ajax_response('Server error.', 'error');
@@ -97,7 +101,7 @@ class GFMUHandlePluploader
         die();
     }
 
-    public function plupload_ajax_download_file()
+    public function plupload_ajax_download_file(): void
     {
         if (!self::verify_nonce()) {
             $this->send_ajax_response('Server error.', 'error');
@@ -143,13 +147,23 @@ class GFMUHandlePluploader
         header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
         header('Pragma: public');
 
-        header('Content-Length: ' . filesize($file));
+        header('Content-Length: ' . self::filesize($file));
 
         readfile($file);
 
         unlink($file);
 
         die();
+    }
+
+    private static function filesize($path)
+    {
+        $size = 0;
+        if (file_exists($path)) {
+            $size = @filesize($path) ?: 0;
+        }
+
+        return $size;
     }
 
     /**
@@ -159,7 +173,7 @@ class GFMUHandlePluploader
      * NOTE: If validation options are not set in gforms for this field the script will default to just images <= 0.5mb
      *        Script will not accept any .js or .php ot .html extensions regardless of validation settings.
      */
-    public function plupload_ajax_submit()
+    public function plupload_ajax_submit(): void
     {
         // Include the uploader class
         require_once GFMU_INC_PATH . 'GFMU_FileUploader.php';
@@ -395,13 +409,12 @@ class GFMUHandlePluploader
             }
 
             $file_data[] = [
-                'id'     => $file_uid,
-                'o_name' => sanitize_text_field($_POST["{$file_uid}_name"]),
-                't_name' => $file_name,
-
+                'id'            => $file_uid,
+                'o_name'        => sanitize_text_field($_POST["{$file_uid}_name"]),
+                't_name'        => $file_name,
                 'url'           => $img_thumb_url,
-                'size'          => $path ? filesize($path) : 0,
-                'last_mod_date' => $path ? filesize($path) : time(),
+                'size'          => $path ? self::filesize($path) : 0,
+                'last_mod_date' => $path ? @filemtime($path) : time(),
                 'wpid'          => $attachment_id,
             ];
         }
@@ -472,7 +485,7 @@ class GFMUHandlePluploader
 
             if (file_exists($path)) {
                 $ext = pathinfo($path, PATHINFO_EXTENSION);
-                $file_size = (int)filesize($path);
+                $file_size = self::filesize($path);
                 $last_mod = filemtime($path);
             }
             else {
@@ -484,9 +497,9 @@ class GFMUHandlePluploader
             $file_name = "file_" . ($file_upload_number + 1) . ".{$ext}";
 
             $file_data[] = [
-                'id'     => "o_" . pathinfo($image->guid, PATHINFO_FILENAME),
-                'o_name' => $file_name,
-                't_name' => $image->ID,
+                'id'            => "o_" . pathinfo($image->guid, PATHINFO_FILENAME),
+                'o_name'        => $file_name,
+                't_name'        => $image->ID,
                 'url'           => $img_thumb_url,
                 'size'          => $file_size,
                 'last_mod_date' => $last_mod,

@@ -8,7 +8,7 @@ GFForms::include_addon_framework();
 
 class GFMUAddon extends GFAddOn
 {
-    private static $_instance = null;
+    private static ?GFMUAddon $_instance = null;
 
     protected $_version = GF_MULTI_UPLOADER_VERSION;
     protected $_min_gravityforms_version = '1.9';
@@ -18,29 +18,25 @@ class GFMUAddon extends GFAddOn
     protected $_title = 'Gravity Forms Multi Uploader';
     protected $_short_title = 'Multi Uploader';
 
-
-    /**
-     * @var array|object
-     */
     private $plugin_options;
 
-    private $pluploaderHandler ;
+    private $pluploaderHandler;
 
     /**
      * Get an instance of this class.
      *
      * @return GFMUAddon
      */
-    public static function get_instance()
+    public static function get_instance(): GFMUAddon
     {
-        if (self::$_instance == null) {
+        if (!self::$_instance) {
             self::$_instance = new self();
         }
 
         return self::$_instance;
     }
 
-    public static function gform_after_create_post($post_id, $entry, $form)
+    public static function gform_after_create_post($post_id, $entry, $form): void
     {
         global $wpdb;
 
@@ -317,7 +313,7 @@ class GFMUAddon extends GFAddOn
     /**
      * Configures the settings which should be rendered on the add-on settings tab.
      */
-    public function plugin_settings_fields(): array
+    public function plugin_settings_fields()
     {
         $locales = array_map(function ($file) {
             return [
@@ -448,7 +444,7 @@ class GFMUAddon extends GFAddOn
     /**
      * Include my_script.js when the form contains a 'simple' type field.
      */
-    public function scripts(): array
+    public function scripts()
     {
         $min = ((defined('SCRIPT_DEBUG') and SCRIPT_DEBUG) or isset($_GET['gform_debug'])) ? '' : '.min';
 
@@ -506,7 +502,7 @@ class GFMUAddon extends GFAddOn
      *
      * @return array
      */
-    public function styles(): array
+    public function styles()
     {
         $min = defined('SCRIPT_DEBUG') && SCRIPT_DEBUG || isset($_GET['gform_debug']) ? '' : '.min';
 
