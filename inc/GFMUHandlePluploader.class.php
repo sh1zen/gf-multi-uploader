@@ -90,7 +90,7 @@ class GFMUHandlePluploader
 
     private function send_ajax_response($response, $type = false)
     {
-        if ($type) {
+        if ($type and is_array($response)) {
             $response[$type] = $response;
         }
 

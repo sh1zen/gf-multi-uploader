@@ -320,7 +320,7 @@ class GFMUAddon extends GFAddOn
                 'label' => ucfirst(pathinfo($file, PATHINFO_FILENAME)),
                 'value' => pathinfo($file, PATHINFO_FILENAME),
             ];
-        }, glob(GFMU_PLUGIN_DIR . 'assets/custom-plupload/i18n/*.js', GLOB_NOSORT));
+        }, glob(GFMU_PLUGIN_DIR . 'assets/custom-plupload/i18n/*.js', \GLOB_NOSORT));
 
         return array(
             array(
