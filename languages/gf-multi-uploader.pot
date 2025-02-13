@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: gfmu-translation\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gf-multi-"
 "uploader/\n"
-"POT-Creation-Date: 2024-11-13 14:31+0100\n"
+"POT-Creation-Date: 2025-02-13 14:50+0100\n"
 "PO-Revision-Date: 2020-05-13 02:34+0200\n"
 "Last-Translator: sh1zen\n"
 "Language-Team: sh1zen\n"
@@ -288,63 +288,63 @@ msgstr ""
 msgid "Close"
 msgstr ""
 
-#: inc/GFMU_FileUploader.php:95
+#: inc/GFMU_FileUploader.php:96
 msgid "Server Error. Max file size too high, try activate chunking."
 msgstr ""
 
-#: inc/GFMU_FileUploader.php:121
+#: inc/GFMU_FileUploader.php:122
 msgid "Server error. Uploads directory isn't writable or executable."
 msgstr ""
 
-#: inc/GFMU_FileUploader.php:144
+#: inc/GFMU_FileUploader.php:145
 msgid ""
 "Server error. Not a multipart request. Please set forceMultipart to "
 "default value (true)."
 msgstr ""
 
-#: inc/GFMU_FileUploader.php:164
+#: inc/GFMU_FileUploader.php:165
 msgid "File name is empty."
 msgstr ""
 
-#: inc/GFMU_FileUploader.php:177
+#: inc/GFMU_FileUploader.php:178
 msgid "File is empty."
 msgstr ""
 
-#: inc/GFMU_FileUploader.php:188
+#: inc/GFMU_FileUploader.php:189
 #, php-format
-msgid "File is too large. Max %s M"
+msgid "File is too large. Max %s Mb"
 msgstr ""
 
-#: inc/GFMU_FileUploader.php:229
+#: inc/GFMU_FileUploader.php:230
 msgid "Server error. Chunks directory isn't writable or executable."
 msgstr ""
 
-#: inc/GFMU_FileUploader.php:267
+#: inc/GFMU_FileUploader.php:268
 msgid "Failed to open input stream"
 msgstr ""
 
-#: inc/GFMU_FileUploader.php:281
+#: inc/GFMU_FileUploader.php:282
 msgid "Failed to open chunk destination file"
 msgstr ""
 
-#: inc/GFMU_FileUploader.php:328
+#: inc/GFMU_FileUploader.php:329
 msgid "Failed to move final buffer file"
 msgstr ""
 
-#: inc/GFMU_FileUploader.php:340
+#: inc/GFMU_FileUploader.php:341
 msgid "Error generating final file path"
 msgstr ""
 
-#: inc/GFMU_FileUploader.php:387
+#: inc/GFMU_FileUploader.php:388
 msgid "The upload was cancelled, or server error encountered"
 msgstr ""
 
-#: inc/GFMU_FileUploader.php:578
+#: inc/GFMU_FileUploader.php:584
 #, php-format
 msgid "File has an invalid extension, it should be one of %s."
 msgstr ""
 
-#: inc/GFMU_FileUploader.php:603
+#: inc/GFMU_FileUploader.php:611
 #, php-format
 msgid "File Type Error: %s."
 msgstr ""

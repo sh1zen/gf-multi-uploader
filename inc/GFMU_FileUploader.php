@@ -13,12 +13,12 @@
  */
 class GFMU_FileUploader
 {
-    public $allowedExtensions = array();
+    public array $allowedExtensions = array();
 
-    public $inputName = 'file';
-    public $maxFileAge = 18000;
-    public $chunksCleanupProbability = 1000;
-    public $chunksExpireIn = 604800; // Once in 1000 requests on avg
+    public string $inputName = 'file';
+    public int $maxFileAge = 18000;
+    public int $chunksCleanupProbability = 1000;
+    public int $chunksExpireIn = 604800; // Once in 1000 requests on avg
     protected $uploadName;
     private $options;
     private $uuid = null;
@@ -48,8 +48,9 @@ class GFMU_FileUploader
     {
         $str = preg_replace('/[^0-9kmgtb]/', '', strtolower($str));
 
-        if (!preg_match("/\b(\d+(?:\.\d+)?)\s*([kmgt]?b)\b/", trim($str), $matches))
+        if (!preg_match("/\b(\d+(?:\.\d+)?)\s*([kmgt]?b)\b/", trim($str), $matches)) {
             return absint($str);
+        }
 
         $val = absint($matches[1]);
 
@@ -185,7 +186,7 @@ class GFMU_FileUploader
                 'file_uid' => $this->uuid,
                 'error'    => array(
                     'code'    => 100,
-                    'message' => sprintf(__("File is too large. Max %s M", "gfmu-locale"), $this->options['sizeLimit'])
+                    'message' => sprintf(__("File is too large. Max %s Mb", "gfmu-locale"), $this->options['sizeLimit'])
                 )
             );
         }
@@ -250,13 +251,13 @@ class GFMU_FileUploader
                 $chunked_input_data_stream = esc_attr($_FILES[$this->inputName]['tmp_name']);
                 $in = @fopen($chunked_input_data_stream, "rb");
 
-                //If stream file has been opened then start to write the tmp file to the desintaion file
+                //If stream file has been opened then start to write the tmp file to the destination file
                 if ($in) {
 
                     //Note we are reading in small sections of 4096 bytes
-                    while ($buff = fread($in, 4096))
+                    while ($buff = fread($in, 4096)) {
                         fwrite($out, $buff);
-
+                    }
                 }
                 else {
                     return array(
@@ -393,8 +394,11 @@ class GFMU_FileUploader
     /**
      * Get the original filename
      */
-    public function getName()
+    public function getName(): ?string
     {
+        if (isset($_REQUEST['filename']))
+            return esc_attr($_REQUEST['filename']);
+
         if (isset($_REQUEST['name']))
             return esc_attr($_REQUEST['name']);
 
@@ -458,13 +462,13 @@ class GFMU_FileUploader
         return $result;
     }
 
-    private function unique_filename($filename, $obfuscation = false)
+    private function unique_filename($filename, $obfuscation = false): array
     {
         $iter = 0;
 
         $path_parts = pathinfo($filename);
 
-        $filename = $obfuscation ? md5(time() . "#bnoe68gc5zw684n4i#" . $path_parts['filename']) : $path_parts['filename'];
+        $filename = $obfuscation ? md5(time() . SECURE_AUTH_SALT . $path_parts['filename']) : $path_parts['filename'];
 
         $path = $path_parts['dirname'] === '.' ? '' : "{$path_parts['dirname']}/";
 
@@ -570,6 +574,8 @@ class GFMU_FileUploader
         if ($this->options['allowedExtensions'] and !in_array(strtolower($ext), array_map("strtolower", $this->options['allowedExtensions']))) {
             $these = implode(', ', $this->options['allowedExtensions']);
 
+            @unlink($file_path);
+
             return array(
                 'result'   => 'error',
                 'file_uid' => $this->uuid,
@@ -582,18 +588,20 @@ class GFMU_FileUploader
 
         //First check which php tools we have
         if (function_exists('finfo_open')) {
-
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
             $mime_type = finfo_file($finfo, $file_path);
             finfo_close($finfo);
 
         }
-        elseif (function_exists('mime_content_type')) {
+
+        if (empty($mime_type) and function_exists('mime_content_type')) {
             $mime_type = mime_content_type($file_path);
         }
 
         //Stop nasty mime types
-        if (!empty($mime_type) and !in_array($mime_type, array_values($this->options['allowed_mimes']))) {
+        if (empty($mime_type) or !in_array($mime_type, array_values($this->options['allowed_mimes']))) {
+
+            @unlink($file_path);
 
             return array(
                 'result'   => 'error',

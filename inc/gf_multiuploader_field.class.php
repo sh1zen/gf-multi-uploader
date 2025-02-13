@@ -195,7 +195,7 @@ class GF_MultiUploader_Field extends GF_Field
         ob_start();
         ?>
         <script type="text/javascript">
-            GFMU_options[<?php echo $field_id ?>].setupFiles = {
+            GFMU_options[<?php echo esc_js($field_id) ?>].setupFiles = {
                 <?php
                 if (!empty($js_vars)) {
                     foreach ($js_vars as $index => $file_data) {
@@ -319,7 +319,7 @@ class GF_MultiUploader_Field extends GF_Field
         if (!is_array($fields))
             $fields = [];
 
-        return sprintf(__("%s uploads"), count($fields));
+        return sprintf(__("%s uploads", "gfmu-locale"), count($fields));
     }
 
     /**

@@ -36,7 +36,7 @@ class GFMUPluginSetup
      */
     private static function load_textdomain(): bool
     {
-        $locale = apply_filters('gfmu_plugin_locale', get_locale(), 'gf-multi-uploader');
+        $locale = apply_filters('gfmu_plugin_locale', get_locale());
 
         $mo_file = "gf-multi-uploader-{$locale}.mo";
 
