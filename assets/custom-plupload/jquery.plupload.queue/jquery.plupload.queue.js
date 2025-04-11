@@ -1,11 +1,7 @@
 /**
- * jquery.plupload.queue.js
- *
- * Copyright 2009, Moxiecode Systems AB
- * Released under GPL License.
- *
- * License: http://www.plupload.com/license
- * Contributing: http://www.plupload.com/contributing
+ * @author    sh1zen
+ * @copyright Copyright (C) 2025.
+ * @license   http://www.gnu.org/licenses/gpl.html GNU/GPL
  */
 
 /* global jQuery:true, alert:true */

@@ -1,20 +1,7 @@
 /**
- * jquery.ui.plupload.js
- *
- * Copyright 2013, Moxiecode Systems AB
- * Released under GPL License.
- *
- * License: http://www.plupload.com/license
- * Contributing: http://www.plupload.com/contributing
- *
- * Depends:
- *    jquery.ui.core.js
- *    jquery.ui.widget.js
- *    jquery.ui.button.js
- *    jquery.ui.progressbar.js
- *
- * Optionally:
- *    jquery.ui.sortable.js
+ * @author    sh1zen
+ * @copyright Copyright (C) 2025.
+ * @license   http://www.gnu.org/licenses/gpl.html GNU/GPL
  */
 
 
