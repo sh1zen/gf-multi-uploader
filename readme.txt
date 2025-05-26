@@ -5,7 +5,7 @@ Donate link: https://www.paypal.com/donate?business=dev.sh1zen%40outlook.it&item
 Requires at least: 5.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.1.6
+Stable tag: 1.1.7
 License: GNU v3.0 License
 URI: https://github.com/sh1zen/wp-optimizer/blob/master/LICENSE
 
@@ -89,8 +89,9 @@ function plupload_i18n( $i18n_filename ) {
 
 == Changelog ==
 
-= 1.1.6 =
+= 1.1.7 =
 
+* fixed issue on GF_MultiUploader_Field.class.php filename
 * extended support to WordPress 6.8
 * updated translations
 
