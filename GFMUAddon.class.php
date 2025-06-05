@@ -190,7 +190,7 @@ class GFMUAddon extends GFAddOn
         $this->pluploaderHandler = GFMUHandlePluploader::getInstance();
 
         if ($this->is_gravityforms_supported() and class_exists('GF_Field')) {
-            require_once(GFMU_INC_PATH . 'GF_MultiUploader_Field.class.php');
+            require_once(GFMU_INC_PATH . 'gf_multiuploader_field.class.php');
             GF_Fields::register(new GF_MultiUploader_Field());
         }
     }
