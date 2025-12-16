@@ -44,16 +44,16 @@ class GFMUHandlePluploader
 
         $post_id = absint($_POST['file_wpid']);
 
-        $file = substr(sanitize_text_field($_POST['file_id']), 2);
+        $file = substr(sanitize_file_name($_POST['file_id']), 2);
 
-        $tmp_name = sanitize_text_field($_POST['tmp_name']);
+        $tmp_name = sanitize_file_name($_POST['tmp_name']);
 
         $doing_meta = (isset($_POST['get_by_meta']) and !empty($_POST['get_by_meta']));
 
         if ($post_id) {
 
             if ($doing_meta) {
-                /* $images = maybe_unserialize(get_metadata('post', $post_id, sanitize_text_field($_POST['get_by_meta']), true));
+                /* $images = maybe_unserialize(get_metadata('post', $post_id, sanitize_file_name($_POST['get_by_meta']), true));
 
                  if (($key = array_search($post_id, $images)) !== false) {
                      unset($images[$key]);
@@ -124,7 +124,7 @@ class GFMUHandlePluploader
         $zip->open($file, ZipArchive::OVERWRITE);
 
         if ($doing_meta) {
-            $images = maybe_unserialize(get_metadata('post', $post_id, sanitize_text_field($_POST['get_by_meta']), true));
+            $images = maybe_unserialize(get_metadata('post', $post_id, sanitize_file_name($_POST['get_by_meta']), true));
         }
         else {
             $images = get_attached_media('image', $post_id);
@@ -389,7 +389,7 @@ class GFMUHandlePluploader
 
             $attachment_id = 0;
 
-            $file_name = sanitize_text_field($_POST["{$file_uid}_tname"]);
+            $file_name = sanitize_file_name($_POST["{$file_uid}_tname"]);
 
             $path = $uplo_dir['basedir'] . '/' . self::$upload_tmp_dir_name . '/' . esc_attr($file_name);
 
@@ -415,7 +415,7 @@ class GFMUHandlePluploader
 
             $file_data[] = [
                 'id'            => $file_uid,
-                'o_name'        => sanitize_text_field($_POST["{$file_uid}_name"]),
+                'o_name'        => sanitize_file_name($_POST["{$file_uid}_name"]),
                 't_name'        => $file_name,
                 'url'           => $img_thumb_url,
                 'size'          => $path ? self::filesize($path) : 0,
@@ -528,8 +528,8 @@ class GFMUHandlePluploader
 
         return [
             'id'     => $file_uid,
-            't_name' => sanitize_text_field($_POST["{$file_uid}_tname"]),
-            'o_name' => sanitize_text_field($_POST["{$file_uid}_name"])
+            't_name' => sanitize_file_name($_POST["{$file_uid}_tname"]),
+            'o_name' => sanitize_file_name($_POST["{$file_uid}_name"])
         ];
     }
 }

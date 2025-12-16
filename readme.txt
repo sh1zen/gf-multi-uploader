@@ -3,11 +3,10 @@ Contributors: sh1zen
 Tags: uploader, gravity forms, file uploader, gravity forms uploader, plupload
 Donate link: https://www.paypal.com/donate?business=dev.sh1zen%40outlook.it&item_name=Thank+you+in+advanced+for+the+kind+donations.+You+will+sustain+me+developing+GF-Multi-Uploader.&currency_code=EUR
 Requires at least: 5.0
-Tested up to: 6.8
+Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.1.7
-License: GNU v3.0 License
-URI: https://github.com/sh1zen/wp-optimizer/blob/master/LICENSE
+Stable tag: 1.1.8
+License: GPLv2 or later
 
 Chunked Multiple file uploads, from images, videos to pdf. Files stored in WP Media Library.
 
@@ -88,6 +87,12 @@ function plupload_i18n( $i18n_filename ) {
 }
 
 == Changelog ==
+
+= 1.1.8 =
+
+* fixed Arbitrary File Deletion CVE-2025-14344
+* extended support to WordPress 6.9
+* updated translations
 
 = 1.1.7 =
 
