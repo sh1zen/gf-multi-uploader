@@ -28,66 +28,50 @@
             '<div class="ui-widget-content plupload_container">' +
             '<div class="ui-state-default ui-widget-header plupload_header">' +
             '<div class="plupload_header_content">' +
+            '<div class="plupload_header_main">' +
             '<div class="plupload_header_title">' + _("Select files") + '</div>' +
             '<div class="plupload_header_text">' + _("Add files to the upload queue and click the start button.") + '</div>' +
-            '<div class="plupload_view_switch ui-buttonset">' +
-
-            '<div class="plupload_view_switch ui-buttonset" style="display: block;">' +
-            '<input type="radio" id="' + obj.id + '_view_list" name="view_mode_' + obj.id + '" class="ui-helper-hidden-accessible">' +
-            '<label class="plupload_button ui-button ui-widget ui-state-default ui-button-icon-only ui-corner-right ui-state-active" for="' + obj.id + '_view_list" data-view="list" role="button" title="' + _('List') + '" aria-pressed="true">' +
-            '<span class="ui-button-text">' + _('List') + '</span>' +
-            '<span class="ui-button-icon-secondary ui-icon ui-icon-grip-dotted-horizontal"></span>' +
-            '</label>' +
-            '<input type="radio" id="' + obj.id + '_view_thumbs" name="view_mode_' + obj.id + '" class="ui-helper-hidden-accessible">' +
-            '<label class="plupload_button ui-button ui-widget ui-state-default ui-button-icon-only ui-corner-right ui-state-active" for="' + obj.id + '_view_thumbs" data-view="thumbs" role="button" title="' + _('Thumbnails') + '" aria-pressed="true">' +
-            '<span class="ui-button-text">' + _('Thumbnails') + '</span>' +
-            '<span class="ui-button-icon-secondary ui-icon ui-icon-image"></span>' +
-            '</label>' +
             '</div>' +
-
+            '<div class="plupload_view_switch">' +
+            '<button type="button" class="plupload_view_toggle" data-view="thumbs" title="' + _('Thumbnails') + '" aria-label="' + _('Thumbnails') + '">' +
+            '<span class="plupload_view_toggle_icon ui-icon ui-icon-image" aria-hidden="true"></span>' +
+            '<span class="plupload_view_toggle_label">' + _('Thumbnails') + '</span>' +
+            '</button>' +
             '</div>' +
             '</div>' +
             '</div>' +
-
-            '<table class="plupload_filelist plupload_filelist_header ui-widget-header">' +
-            '<tr>' +
-            '<td class="plupload_cell plupload_file_name">' + _('Filename') + '</td>' +
-            '<td class="plupload_cell plupload_file_status">' + _('Status') + '</td>' +
-            '<td class="plupload_cell plupload_file_size">' + _('Size') + '</td>' +
-            '<td class="plupload_cell plupload_file_action">&nbsp;</td>' +
-            '</tr>' +
-            '</table>' +
 
             '<div class="plupload_content">' +
             '<div class="plupload_droptext">' + _("Drag files here.") + '</div>' +
-            '<ul class="plupload_filelist_content"> </ul>' +
-            '<div class="plupload_clearer">&nbsp;</div>' +
+            '<ul class="plupload_filelist_content plupload_scroll"> </ul>' +
             '</div>' +
 
-            '<table class="plupload_filelist plupload_filelist_footer ui-widget-header">' +
-            '<tr>' +
-            '<td class="plupload_cell">' +
-            '<div class="plupload_buttons"><!-- Visible -->' +
-            '<a class="plupload_button plupload_add">' + _("Add Files") + '</a>&nbsp;' +
-            '<a class="plupload_button plupload_start">' + _("Start Upload") + '</a>&nbsp;' +
-            '<a class="plupload_button plupload_stop plupload_hidden">' + _("Stop Upload") + '</a>&nbsp;' +
+            '<div class="plupload_footer ui-widget-header">' +
+            '<div class="plupload_footer_primary">' +
+            '<div class="plupload_buttons">' +
+            '<a class="plupload_button plupload_add">' + _("Add Files") + '</a>' +
+            '<a class="plupload_button plupload_start">' + _("Start Upload") + '</a>' +
+            '<a class="plupload_button plupload_stop plupload_hidden">' + _("Stop Upload") + '</a>' +
             '</div>' +
-
-            '<div class="plupload_started plupload_hidden"><!-- Hidden -->' +
-            '<div class="plupload_progress plupload_right">' +
+            '<div class="plupload_started plupload_hidden">' +
+            '<div class="plupload_progress" aria-hidden="true">' +
             '<div class="plupload_progress_container"></div>' +
             '</div>' +
-
-            '<div class="plupload_cell plupload_upload_status"></div>' +
-
-            '<div class="plupload_clearer">&nbsp;</div>' +
+            '<div class="plupload_upload_status" aria-live="polite"></div>' +
             '</div>' +
-            '</td>' +
-            '<td class="plupload_file_status"><span class="plupload_total_status">0%</span></td>' +
-            '<td class="plupload_file_size"><span class="plupload_total_file_size">0 kb</span></td>' +
-            '<td class="plupload_download "><a class="plupload_button plupload_download plupload_download_hook" data-id="' + obj.id + '">' + _("Download") + '</a></td>' +
-            '</tr>' +
-            '</table>' +
+            '</div>' +
+            '<div class="plupload_footer_secondary">' +
+            '<div class="plupload_footer_metric plupload_file_status"><span class="plupload_total_status">0%</span></div>' +
+            '<div class="plupload_footer_metric plupload_file_size"><span class="plupload_total_file_size">0 kb</span></div>' +
+            '<div class="plupload_download"><a class="plupload_button plupload_download plupload_download_hook" data-id="' + obj.id + '">' + _("Download") + '</a></div>' +
+            '</div>' +
+            '</div>' +
+            '<div class="plupload_preview_overlay" hidden>' +
+            '<div class="plupload_preview_dialog" role="dialog" aria-modal="true">' +
+            '<button type="button" class="plupload_preview_close" aria-label="' + _('Close') + '">&times;</button>' +
+            '<img class="plupload_preview_image" alt="">' +
+            '</div>' +
+            '</div>' +
 
             '</div>' +
             '<input class="plupload_count" value="0" type="hidden">' +
@@ -121,9 +105,9 @@
                 remember: true // requires: https://github.com/carhartl/jquery-cookie, otherwise disabled even if set to true
             },
 
-            thumb_width: 100,
-            thumb_height: 60,
-            thumb_crop: false,
+            thumb_width: 136,
+            thumb_height: 96,
+            thumb_crop: true,
 
             multiple_queues: true, // re-use widget by default
             dragdrop: true,
@@ -195,6 +179,8 @@
                 this.progressbar.progressbar();
             }
 
+            this._setVisualState('idle');
+
             // counter
             this.counter = $('.plupload_count', this.element)
                 .attr({
@@ -230,6 +216,8 @@
                 }
             });
 
+            this._initPreview();
+
             uploader = this.uploader = uploaders[id] = new plupload.Uploader($.extend(this.options, options));
 
             if (self.options.views.thumbs) {
@@ -261,32 +249,49 @@
 
 
             uploader.bind('Error', function (up, err) {
-                let message, details = "";
-
-                message = '<strong>' + err.message + '</strong>';
+                let message = (err.message || '').replace(/\s*:\s*\.$/, '.').trim();
+                let details = "";
 
                 switch (err.code) {
                     case plupload.FILE_EXTENSION_ERROR:
-                        details = plupload.sprintf(_("File: %s"), err.file.name);
+                        if (!message || /^File Type Error/i.test(message)) {
+                            message = _("File extension error.");
+                        }
+                        details = err.file && err.file.name ? plupload.sprintf(_("File: %s"), err.file.name) : _("The selected file type is not allowed.");
                         break;
 
                     case plupload.FILE_SIZE_ERROR:
+                        if (!message) {
+                            message = _("File size error.");
+                        }
                         details = plupload.sprintf(_("File: %s, size: %d, max file size: %d"), err.file.name, plupload.formatSize(err.file.size), plupload.formatSize(plupload.parseSize(up.getOption('filters').max_file_size)));
                         break;
 
                     case plupload.FILE_DUPLICATE_ERROR:
+                        if (!message) {
+                            message = _("Duplicate file error.");
+                        }
                         details = plupload.sprintf(_("%s already present in the queue."), err.file.name);
                         break;
 
                     case self.FILE_COUNT_ERROR:
+                        if (!message) {
+                            message = _("File count error.");
+                        }
                         details = plupload.sprintf(_("Upload element accepts only %d file(s) at a time. Extra files were stripped."), up.getOption('filters').max_file_count || 0);
                         break;
 
                     case plupload.IMAGE_FORMAT_ERROR :
+                        if (!message) {
+                            message = _("Image format error.");
+                        }
                         details = _("Image format either wrong or not supported.");
                         break;
 
                     case plupload.IMAGE_MEMORY_ERROR :
+                        if (!message) {
+                            message = _("Image memory error.");
+                        }
                         details = _("Runtime ran out of available memory.");
                         break;
 
@@ -296,11 +301,22 @@
                         break;	*/
 
                     case plupload.HTTP_ERROR:
+                        if (!message) {
+                            message = _("HTTP Error.");
+                        }
                         details = _("Upload URL might be wrong or doesn't exist.");
                         break;
                 }
 
-                message += " <br /><i>" + details + "</i>";
+                if (!message) {
+                    message = _("Upload error.");
+                }
+
+                message = '<strong>' + message + '</strong>';
+
+                if (details) {
+                    message += " <br /><i>" + details + "</i>";
+                }
 
                 self._trigger('error', null, {up: up, error: err});
 
@@ -567,6 +583,155 @@
             return this.uploader;
         },
 
+        _setVisualState: function (state) {
+            let states = 'plupload-state-idle plupload-state-uploading plupload-state-complete';
+
+            this.container
+                .removeClass(states)
+                .addClass('plupload-state-' + state);
+        },
+
+        _initPreview: function () {
+            let self = this
+                , overlay = $('.plupload_preview_overlay', this.element)
+            ;
+
+            if (!overlay.length) {
+                return;
+            }
+
+            this.previewOverlay = overlay;
+            this.previewImage = $('.plupload_preview_image', overlay);
+            this.previewClose = $('.plupload_preview_close', overlay);
+
+            this.filelist
+                .off('click.pluploadPreview')
+                .on('click.pluploadPreview', '.plupload_file_thumb', function (e) {
+                    let fileId = $(this).closest('.plupload_file').attr('id');
+
+                    if (!fileId) {
+                        return;
+                    }
+
+                    if (self.openPreview(fileId, this)) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                });
+
+            overlay
+                .off('click.pluploadPreview')
+                .on('click.pluploadPreview', function (e) {
+                    if ($(e.target).is('.plupload_preview_overlay, .plupload_preview_close')) {
+                        self.closePreview();
+                    }
+                });
+
+            this.document
+                .off('keydown.pluploadPreview-' + this.id)
+                .on('keydown.pluploadPreview-' + this.id, function (e) {
+                    if (e.key === 'Escape' && self.previewOverlay && self.previewOverlay.hasClass('is-open')) {
+                        self.closePreview();
+                    }
+                });
+        },
+
+        resolvePreviewSource: function (file, thumb) {
+            let $thumb = thumb ? $(thumb) : $('#' + file.id + ' .plupload_file_thumb', this.filelist)
+                , image = $thumb.find('img').first()
+                , canvas = $thumb.find('canvas').first().get(0)
+            ;
+
+            if (file.preview_url) {
+                return file.preview_url;
+            }
+
+            if (file.url) {
+                return file.url;
+            }
+
+            if (image.length && image.attr('src')) {
+                return image.attr('src');
+            }
+
+            if (canvas && canvas.toDataURL) {
+                try {
+                    return canvas.toDataURL();
+                } catch (ignore) {
+                }
+            }
+
+            return '';
+        },
+
+        isPreviewableImage: function (file, thumb) {
+            let fileType = ((file && file.type) || '').toLowerCase()
+                , src = this.resolvePreviewSource(file, thumb)
+            ;
+
+            if (fileType.indexOf('image/') === 0) {
+                return true;
+            }
+
+            return /(\.)(avif|bmp|gif|ico|jpe?g|png|svg|webp)([?#].*)?$/i.test(src) || /^data:image\//i.test(src);
+        },
+
+        openPreview: function (file, thumb) {
+            let currentFile = this.getFile(file)
+                , src
+            ;
+
+            if (!currentFile || !this.previewOverlay || !this.previewImage) {
+                return false;
+            }
+
+            if (!this.isPreviewableImage(currentFile, thumb)) {
+                return false;
+            }
+
+            src = this.resolvePreviewSource(currentFile, thumb);
+
+            if (!src) {
+                return false;
+            }
+
+            this.previewImage.attr({
+                src: src,
+                alt: currentFile.name || ''
+            });
+
+            this.previewOverlay
+                .addClass('is-open')
+                .attr('aria-hidden', 'false')
+                .removeAttr('hidden');
+
+            $('body').addClass('plupload_preview_open');
+
+            if (this.previewClose && this.previewClose.length) {
+                this.previewClose.trigger('focus');
+            }
+
+            return true;
+        },
+
+        closePreview: function () {
+            if (!this.previewOverlay || !this.previewImage) {
+                return;
+            }
+
+            this.previewOverlay
+                .removeClass('is-open')
+                .attr('aria-hidden', 'true')
+                .attr('hidden', 'hidden');
+
+            this.previewImage.attr({
+                src: '',
+                alt: ''
+            });
+
+            $('body').removeClass('plupload_preview_open');
+        },
+
 
         /**
          Trigger refresh procedure, specifically browse_button re-measure and re-position operations.
@@ -594,19 +759,55 @@
                 '<span class="plupload_message_close ui-icon ui-icon-circle-close" title="' + _('Close') + '"></span>' +
                 '<p><span class="ui-icon"></span>' + message + '</p>' +
                 '</div>'
-            );
+            )
+                , toastContainer = $('#plupload_toasts')
+                , closePopup
+                , dismissDelay = type === 'error' ? 7000 : 4500
+            ;
+
+            if (!toastContainer.length) {
+                toastContainer = $('<div id="plupload_toasts" class="plupload_toasts" aria-live="polite" aria-atomic="false"></div>').appendTo('body');
+            }
 
             popup.addClass('ui-state-' + (type === 'error' ? 'error' : 'highlight'))
+                .attr('role', type === 'error' ? 'alert' : 'status')
                 .find('p .ui-icon')
                 .addClass('ui-icon-' + (type === 'error' ? 'alert' : 'info'))
                 .end()
                 .find('.plupload_message_close')
                 .click(function () {
-                    popup.remove();
+                    closePopup();
                 })
                 .end();
 
-            $('.plupload_header', this.container).append(popup);
+            closePopup = function () {
+                let timerId = popup.data('dismissTimer');
+
+                if (timerId) {
+                    clearTimeout(timerId);
+                }
+
+                popup.stop(true, true).fadeOut(180, function () {
+                    $(this).remove();
+
+                    if (!toastContainer.children().length) {
+                        toastContainer.remove();
+                    }
+                });
+            };
+
+            popup.on('mouseenter', function () {
+                let timerId = popup.data('dismissTimer');
+
+                if (timerId) {
+                    clearTimeout(timerId);
+                }
+            }).on('mouseleave', function () {
+                popup.data('dismissTimer', setTimeout(closePopup, dismissDelay));
+            });
+
+            toastContainer.append(popup);
+            popup.data('dismissTimer', setTimeout(closePopup, dismissDelay));
         },
 
 
@@ -660,6 +861,8 @@
                     .add('.plupload_started', this.element)
                     .removeClass('plupload_hidden');
 
+                this._setVisualState('uploading');
+
                 this.start_button.button('disable');
 
                 if (!this.options.multiple_queues) {
@@ -691,6 +894,7 @@
                     up.disableBrowse(false);
                 }
 
+                this._setVisualState(up.total.uploaded && !filesPending ? 'complete' : 'idle');
                 this._updateTotalProgress();
             }
 
@@ -767,9 +971,6 @@
         _updateTotalProgress: function () {
             let up = this.uploader;
 
-            // Scroll to end of file list
-            this.filelist[0].scrollTop = this.filelist[0].scrollHeight;
-
             this.progressbar.progressbar('value', up.total.percent);
 
             this.element
@@ -815,19 +1016,23 @@
             function measure() {
                 if (!tw || !th) {
                     let wrapper = $('.plupload_file:eq(0)', self.filelist);
+                    if (!wrapper.length) {
+                        return false;
+                    }
                     tw = wrapper.outerWidth(true);
                     th = wrapper.outerHeight(true);
                 }
 
-                let aw = self.content.width(), ah = self.content.height();
-                cols = Math.floor(aw / tw);
+                let aw = self.filelist.innerWidth(), ah = self.filelist.innerHeight();
+                cols = Math.max(1, Math.floor(aw / tw));
                 num = cols * (Math.ceil(ah / th) + 1);
+                return true;
             }
 
 
             function pickThumbsToLoad() {
                 // calculate index of virst visible thumb
-                let startIdx = Math.floor(self.content.scrollTop() / th) * cols;
+                let startIdx = Math.floor(self.filelist.scrollTop() / th) * cols;
                 // get potentially visible thumbs that are not yet visible
                 thumbs = $('.plupload_file', self.filelist)
                     .slice(startIdx, startIdx + num)
@@ -841,7 +1046,9 @@
                     if (self.view_mode !== 'thumbs') {
                         return;
                     }
-                    measure();
+                    if (!measure()) {
+                        return;
+                    }
                     pickThumbsToLoad();
                     lazyLoad();
                 }
@@ -851,7 +1058,7 @@
                 }
 
                 onLast(self.window, 'resize', mpl);
-                onLast(self.content, 'scroll', mpl);
+                onLast(self.filelist, 'scroll', mpl);
 
                 self.element.on('viewchanged selected', mpl);
 
@@ -951,8 +1158,8 @@
                         case 'ext':
                             return ext;
 
-                        case 'url':
-                            return file.url;
+                            case 'url':
+                                return file.url || '';
 
                         default:
                             return file[$1] || '';
@@ -984,6 +1191,43 @@
         },
 
 
+        _updateViewToggle: function (view) {
+            let toggle = $('.plupload_view_toggle', this.container)
+                , nextView
+                , label
+                , iconClass
+            ;
+
+            if (!toggle.length) {
+                return;
+            }
+
+            nextView = view === 'thumbs' ? 'list' : 'thumbs';
+
+            if (!this.options.views[nextView]) {
+                nextView = view;
+            }
+
+            label = nextView === 'thumbs' ? _('Thumbnails') : _('List');
+            iconClass = nextView === 'thumbs' ? 'ui-icon-image' : 'ui-icon-grip-dotted-horizontal';
+
+            toggle
+                .attr({
+                    'data-view': nextView,
+                    'title': label,
+                    'aria-label': label
+                })
+                .toggleClass('is-list-target', nextView === 'list')
+                .toggleClass('is-thumbs-target', nextView === 'thumbs')
+                .find('.plupload_view_toggle_label')
+                .text(label);
+
+            toggle.find('.plupload_view_toggle_icon')
+                .removeClass('ui-icon-image ui-icon-grip-dotted-horizontal')
+                .addClass(iconClass);
+        },
+
+
         _viewChanged: function (view) {
             // update or write a new cookie
             if (this.options.views.remember && $.cookie) {
@@ -997,6 +1241,7 @@
 
             this.container.removeClass('plupload_view_list plupload_view_thumbs').addClass('plupload_view_' + view);
             this.view_mode = view;
+            this._updateViewToggle(view);
             this._trigger('viewchanged', null, {view: view});
         },
 
@@ -1004,51 +1249,49 @@
             let self = this
                 , view
                 , switcher = $('.plupload_view_switch', this.container)
-                , buttons
-                , button
+                , availableViews = []
             ;
 
             plupload.each(['list', 'thumbs'], function (view) {
-                if (!self.options.views[view]) {
-                    switcher.find('[for="' + self.id + '_view_' + view + '"], #' + self.id + '_view_' + view).remove();
+                if (self.options.views[view]) {
+                    availableViews.push(view);
                 }
             });
 
-            // check if any visible left
-            buttons = switcher.find('.plupload_button');
-
-            if (buttons.length === 1) {
+            if (availableViews.length <= 1) {
                 switcher.hide();
-                view = buttons.eq(0).data('view');
-                this._viewChanged(view);
-            } else if ($.ui.button && buttons.length > 1) {
+                this._viewChanged(availableViews[0] || this.options.views.active);
+            } else {
                 if (this.options.views.remember && $.cookie) {
                     view = $.cookie('plupload_ui_view');
                 }
 
-                // if wierd case, bail out to default
-                if (!~plupload.inArray(view, ['list', 'thumbs'])) {
+                if (!~plupload.inArray(view, availableViews)) {
                     view = this.options.views.active;
+                }
+
+                if (!~plupload.inArray(view, availableViews)) {
+                    view = availableViews[0];
                 }
 
                 switcher
                     .show()
-                    .buttonset()
-                    .find('.ui-button')
-                    .click(function (e) {
-                        view = $(this).data('view');
-                        self._viewChanged(view);
-                        e.preventDefault(); // avoid auto scrolling to widget in IE and FF (see #850)
+                    .off('click.pluploadViewToggle')
+                    .on('click.pluploadViewToggle', '.plupload_view_toggle', function (e) {
+                        let nextView = $(this).attr('data-view');
+
+                        if (!~plupload.inArray(nextView, availableViews)) {
+                            nextView = self.view_mode === 'thumbs' ? 'list' : 'thumbs';
+                        }
+
+                        if (~plupload.inArray(nextView, availableViews)) {
+                            self._viewChanged(nextView);
+                        }
+
+                        e.preventDefault();
                     });
 
-                // if view not active - happens when switcher wasn't clicked manually
-                button = switcher.find('[for="' + self.id + '_view_' + view + '"]');
-                if (button.length) {
-                    button.trigger('click');
-                }
-            } else {
-                switcher.show();
-                this._viewChanged(this.options.views.active);
+                this._viewChanged(view);
             }
 
             // initialize thumb viewer if requested

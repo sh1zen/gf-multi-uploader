@@ -68,7 +68,13 @@ class GF_MultiUploader_Field extends GF_Field
      */
     public function get_form_editor_inline_script_on_page_render(): string
     {
-        $plugin_options = GFMUAddon::get_instance()->get_plupload_settings();
+        $current_form_id = isset($_GET['id']) ? absint(wp_unslash($_GET['id'])) : 0;
+        $form_options = GFMUAddon::get_instance()->get_form_uploader_settings($current_form_id);
+        $default_file_size = preg_replace('/[^0-9]/', '', (string)$form_options['max_file_size']);
+
+        if ($default_file_size === '') {
+            $default_file_size = '10';
+        }
 
         ob_start();
         // initialize the fields custom settings
@@ -79,13 +85,13 @@ class GF_MultiUploader_Field extends GF_Field
         $(document).bind("gform_load_field_settings", function (event, field, form) {
 
         //Populate file extensions with data if set
-        field["gfmu_file_extensions"] = field["gfmu_file_extensions"] || '<?php echo esc_js($plugin_options['filters']['files']); ?>';
+        field["gfmu_file_extensions"] = field["gfmu_file_extensions"] || '<?php echo esc_js($form_options['filters']['files']); ?>';
         $("#gfmu_file_extensions").val(field["gfmu_file_extensions"]);
 
-        field["gfmu_file_size"] = field["gfmu_file_size"] || '<?php echo esc_js($plugin_options['max_file_size']); ?>';
+        field["gfmu_file_size"] = field["gfmu_file_size"] || '<?php echo esc_js($default_file_size); ?>';
         $("#gfmu_file_size").val(field["gfmu_file_size"]);
 
-        field["gfmu_max_files"] = field["gfmu_max_files"] || '<?php echo esc_js($plugin_options['max_files']); ?>';
+        field["gfmu_max_files"] = field["gfmu_max_files"] || '<?php echo esc_js($form_options['max_files']); ?>';
         $("#gfmu_max_files").val(field["gfmu_max_files"]);
 
         field["gfmu_save_to_meta"] = field["gfmu_save_to_meta"] || '';
@@ -112,7 +118,7 @@ class GF_MultiUploader_Field extends GF_Field
             return "<div class='ginput_container mth_plupload'><span class='gform_drop_instructions'>File Uploader</span></div>";
         }
 
-        $input = $this->setup_gfmu_option_var();
+        $input = $this->setup_gfmu_option_var($form);
 
         $input .= "<div class='ginput_container mth_plupload'><input name='input_{$field_id}' id='mth_form_pluploader_{$field_id}' type='hidden'/></div>";
 
@@ -136,11 +142,11 @@ class GF_MultiUploader_Field extends GF_Field
     /**
      * create the GFMU_options used to pass options to plupload
      */
-    private function setup_gfmu_option_var(): string
+    private function setup_gfmu_option_var($form = null): string
     {
         $field_id = absint($this->id);
 
-        $field_options = $this->get_gfmu_field_settings();
+        $field_options = $this->get_gfmu_field_settings($form);
 
         if (empty($field_options))
             return '';
@@ -148,16 +154,21 @@ class GF_MultiUploader_Field extends GF_Field
         return "<script>if(typeof GFMU_options === 'undefined' ) {var GFMU_options = {}} GFMU_options['{$field_id}'] = " . wp_json_encode($field_options) . ";</script>";
     }
 
-    public function get_gfmu_field_settings()
+    public function get_gfmu_field_settings($form = null)
     {
         $field_id = absint($this->id);
         $form_id = absint($this->formId);
+        $post_id = isset($_GET['gform_post_id']) ? absint(wp_unslash($_GET['gform_post_id'])) : 0;
+        $upload_dir = wp_upload_dir();
 
-        $plupload_settings = GFMUAddon::get_instance()->get_plupload_settings();
+        $plupload_settings = GFMUAddon::get_instance()->get_form_uploader_settings($form ?: $form_id);
+        $pluploader_handler = GFMUHandlePluploader::getInstance();
+        $can_manage_existing_media = $post_id ? $pluploader_handler->current_user_can_access_media_post($post_id) : false;
+        $media_nonce = $can_manage_existing_media ? wp_create_nonce(GFMUHandlePluploader::$media_nonce_key) : '';
 
         //Cache any validation settings for this field
         if (!empty($this->gfmu_file_extensions)) {
-            $plupload_settings['filters']['files'] = preg_replace('/(\s|\.)+/', '', esc_attr($this->gfmu_file_extensions));
+            $plupload_settings['filters']['files'] = GFMUAddon::normalize_extension_filters((string)$this->gfmu_file_extensions);
         }
 
         //Cache max file size validation option
@@ -178,15 +189,21 @@ class GF_MultiUploader_Field extends GF_Field
             'element'         => "pluploader_{$field_id}",
             'wp_ajax_url'     => admin_url('admin-ajax.php'),
             'params'          => [
-                'form_id'  => $form_id,
-                'field_id' => $field_id,
-                'nonce'    => wp_create_nonce(GFMUHandlePluploader::$submit_nonce_key)
+                'form_id'      => $form_id,
+                'field_id'     => $field_id,
+                'post_id'      => $post_id,
+                'upload_nonce' => wp_create_nonce(GFMUHandlePluploader::$upload_nonce_key),
+                'media_nonce'  => $media_nonce,
             ],
+            'can_manage_existing_media'   => $can_manage_existing_media,
+            'can_download_existing_media' => $can_manage_existing_media,
             'flash_url'       => includes_url('js/plupload/plupload.flash.swf'),
             'silverlight_url' => includes_url('js/plupload/plupload.silverlight.xap'),
+            'temp_uploads_url' => trailingslashit($upload_dir['baseurl']) . 'gfmu-uploads-tmp/',
             'i18n'            => [
-                'server_error'     => "Immagine troppo grande.",
-                'file_limit_error' => "Hai raggiunto il limite massimo di immagini."
+                'server_error'            => "Immagine troppo grande.",
+                'file_limit_error'        => "Hai raggiunto il limite massimo di immagini.",
+                'existing_media_readonly' => "I file esistenti possono essere gestiti solo da utenti autorizzati."
             ]
         ], $plupload_settings);
 
@@ -218,6 +235,7 @@ class GF_MultiUploader_Field extends GF_Field
                         echo "'t_name': '" . esc_attr($file_data['t_name']) . "',";
                         echo "'size': '" . esc_js($file_data['size']) . "',";
                         echo "'url': '" . esc_url($file_data['url']) . "',";
+                        echo "'preview_url': '" . esc_url($file_data['preview_url'] ?? $file_data['url']) . "',";
                         echo "'lastModified': new Date('" . esc_js($date) . "'),";
                         echo "'wpid': '" . esc_js($file_data['wpid']) . "',";
                         echo "},";
@@ -240,7 +258,7 @@ class GF_MultiUploader_Field extends GF_Field
         $this->gfmu_file_size = intval($this->gfmu_file_size);
         $this->gfmu_max_files = intval($this->gfmu_max_files);
         $this->gfmu_save_to_meta = sanitize_text_field($this->gfmu_save_to_meta);
-        $this->gfmu_file_extensions = preg_replace('/(\s|\.)*/', '', $this->gfmu_file_extensions);
+        $this->gfmu_file_extensions = GFMUAddon::normalize_extension_filters((string)$this->gfmu_file_extensions);
     }
 
 

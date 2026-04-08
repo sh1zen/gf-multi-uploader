@@ -42,8 +42,26 @@ class GFMU_FileUploader
 
         ], $args);
 
-        $this->options['allowedExtensions'] = array_map('trim', explode(',', $this->options['allowedExtensions']));
+        $this->options['allowedExtensions'] = $this->normalizeExtensions($this->options['allowedExtensions']);
         $this->options['sizeLimit'] = $this->toBytes($this->options['sizeLimit']);
+    }
+
+    private function normalizeExtensions($extensions): array
+    {
+        if (is_array($extensions)) {
+            $extensions = implode(',', $extensions);
+        }
+
+        $extensions = array_map(
+            static function ($extension) {
+                return strtolower(ltrim(trim((string)$extension), '.'));
+            },
+            explode(',', (string)$extensions)
+        );
+
+        $extensions = array_values(array_unique(array_filter($extensions)));
+
+        return $extensions;
     }
 
     /**
@@ -567,6 +585,7 @@ class GFMU_FileUploader
     {
         //Init vars
         $mime_type = null;
+        $wp_filetype = null;
 
         if (empty($file_path)) {
             $file_path = $_FILES[$this->inputName]['tmp_name'];
@@ -574,9 +593,9 @@ class GFMU_FileUploader
 
         // Validate file extension
         $pathinfo = pathinfo($name);
-        $ext = $pathinfo['extension'] ?? '';
+        $ext = strtolower($pathinfo['extension'] ?? '');
 
-        if ($this->options['allowedExtensions'] and !in_array(strtolower($ext), array_map("strtolower", $this->options['allowedExtensions']))) {
+        if ($this->options['allowedExtensions'] and !in_array($ext, $this->options['allowedExtensions'], true)) {
             $these = implode(', ', $this->options['allowedExtensions']);
 
             @unlink($file_path);
@@ -591,6 +610,27 @@ class GFMU_FileUploader
             );
         }
 
+        $wp_filetype = wp_check_filetype_and_ext($file_path, $name, $this->options['allowed_mimes']);
+
+        if (!empty($wp_filetype['ext']) && !in_array(strtolower($wp_filetype['ext']), $this->options['allowedExtensions'], true)) {
+            @unlink($file_path);
+
+            return array(
+                'result'   => 'error',
+                'file_uid' => $this->uuid,
+                'error'    => array(
+                    'code'    => 100,
+                    'message' => sprintf(__("File has an invalid extension, it should be one of %s.", "gfmu-locale"), implode(', ', $this->options['allowedExtensions']))
+                )
+            );
+        }
+
+        $allowed_mimes_for_extension = $this->getAllowedMimesForExtension($ext);
+
+        if (!empty($wp_filetype['type']) && $this->mimeMatchesAllowed($wp_filetype['type'], $allowed_mimes_for_extension)) {
+            return true;
+        }
+
         //First check which php tools we have
         if (function_exists('finfo_open')) {
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
@@ -603,8 +643,17 @@ class GFMU_FileUploader
             $mime_type = mime_content_type($file_path);
         }
 
+        if (!empty($mime_type) && $this->mimeMatchesAllowed($mime_type, $allowed_mimes_for_extension)) {
+            return true;
+        }
+
+        // If WordPress identified the file type correctly, trust that before failing on stricter PHP detectors.
+        if (!empty($wp_filetype['type']) && $this->mimeMatchesAllowed($wp_filetype['type'], array_values($this->options['allowed_mimes']))) {
+            return true;
+        }
+
         //Stop nasty mime types
-        if (empty($mime_type) or !in_array($mime_type, array_values($this->options['allowed_mimes']))) {
+        if (empty($mime_type) or !$this->mimeMatchesAllowed($mime_type, array_values($this->options['allowed_mimes']))) {
 
             @unlink($file_path);
 
@@ -618,5 +667,52 @@ class GFMU_FileUploader
             );
         }
         return true;
+    }
+
+    private function getAllowedMimesForExtension(string $extension): array
+    {
+        if (empty($extension)) {
+            return array_values($this->options['allowed_mimes']);
+        }
+
+        $matches = [];
+
+        foreach ($this->options['allowed_mimes'] as $extensions => $mime) {
+            $extension_group = array_map('trim', explode('|', strtolower((string)$extensions)));
+
+            if (in_array($extension, $extension_group, true)) {
+                $matches[] = strtolower((string)$mime);
+            }
+        }
+
+        return array_values(array_unique(array_filter($matches)));
+    }
+
+    private function mimeMatchesAllowed(string $mime_type, array $allowed_mimes): bool
+    {
+        $mime_type = strtolower(trim($mime_type));
+        $allowed_mimes = array_map('strtolower', array_filter($allowed_mimes));
+
+        if (empty($mime_type) || empty($allowed_mimes)) {
+            return false;
+        }
+
+        if (in_array($mime_type, $allowed_mimes, true)) {
+            return true;
+        }
+
+        $mime_aliases = [
+            'image/x-png'                   => 'image/png',
+            'image/pjpeg'                  => 'image/jpeg',
+            'image/jpg'                    => 'image/jpeg',
+            'application/x-zip-compressed' => 'application/zip',
+            'application/x-pdf'            => 'application/pdf'
+        ];
+
+        if (isset($mime_aliases[$mime_type]) && in_array($mime_aliases[$mime_type], $allowed_mimes, true)) {
+            return true;
+        }
+
+        return false;
     }
 }

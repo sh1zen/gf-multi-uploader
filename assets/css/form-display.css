@@ -1,14 +1,13 @@
-/**
- * @author    sh1zen
- * @copyright Copyright (C) 2025.
- * @license   http://www.gnu.org/licenses/gpl.html GNU/GPL
- */
-
 .ginput_container.mth_plupload {
-    border: 2px dashed #DDDDDD;
-    color: #AAAAAA;
-    height: 20px;
-    margin-bottom: 10px;
-    padding: 25px;
-    text-align: center;
+    min-height: 56px;
+    padding: 14px 16px;
+    border: 1px dashed #c9d7cc;
+    border-radius: 12px;
+    background: #f8fbf8;
+}
+
+.ginput_container.mth_plupload .gform_drop_instructions {
+    display: inline-block;
+    color: #355343;
+    font-weight: 600;
 }

@@ -5,7 +5,7 @@ Donate link: https://www.paypal.com/donate?business=dev.sh1zen%40outlook.it&item
 Requires at least: 5.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.1.8
+Stable tag: 1.1.9
 License: GPLv2 or later
 
 Chunked Multiple file uploads, from images, videos to pdf. Files stored in WP Media Library.
@@ -87,6 +87,14 @@ function plupload_i18n( $i18n_filename ) {
 }
 
 == Changelog ==
+
+= 1.1.9 =
+
+* improved uploader frontend styling and error presentation
+* hardened frontend AJAX permissions for delete and download actions
+* added guest-safe temporary upload cleanup endpoint
+* improved ui/ux of frontend uploader
+* fixed unauthorized arbitrary media deletion vulnerability (CVE-2026-5581)
 
 = 1.1.8 =
 

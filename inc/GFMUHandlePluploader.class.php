@@ -14,7 +14,8 @@ if (!function_exists('wp_generate_attachment_metadata')) {
 
 class GFMUHandlePluploader
 {
-    public static string $submit_nonce_key = 'gfmu-submit-nonce';
+    public static string $upload_nonce_key = 'gfmu-upload-nonce';
+    public static string $media_nonce_key = 'gfmu-media-nonce';
     private static string $upload_tmp_dir_name = 'gfmu-uploads-tmp';
 
     private static ?GFMUHandlePluploader $_instance = null;
@@ -38,55 +39,66 @@ class GFMUHandlePluploader
 
     public function plupload_ajax_delete_file(): void
     {
-        if (!self::verify_nonce()) {
-            $this->send_ajax_response('Server error.', 'error');
+        if (!self::verify_nonce(self::$media_nonce_key)) {
+            $this->send_ajax_response('Unauthorized.', 'error');
         }
 
-        $post_id = absint($_POST['file_wpid']);
+        $attachment_id = isset($_POST['file_wpid']) ? absint(wp_unslash($_POST['file_wpid'])) : 0;
+        $file = substr(sanitize_file_name(wp_unslash($_POST['file_id'] ?? '')), 2);
+        $context_post_id = isset($_POST['post_id']) ? absint(wp_unslash($_POST['post_id'])) : 0;
 
-        $file = substr(sanitize_file_name($_POST['file_id']), 2);
-
-        $tmp_name = sanitize_file_name($_POST['tmp_name']);
-
-        $doing_meta = (isset($_POST['get_by_meta']) and !empty($_POST['get_by_meta']));
-
-        if ($post_id) {
-
-            if ($doing_meta) {
-                /* $images = maybe_unserialize(get_metadata('post', $post_id, sanitize_file_name($_POST['get_by_meta']), true));
-
-                 if (($key = array_search($post_id, $images)) !== false) {
-                     unset($images[$key]);
-
-                     update_metadata('post', )
-
-                     $this->send_ajax_response($file);
-                 }*/
-            }
-            elseif ($post = wp_delete_attachment($post_id, true)) {
-                clean_post_cache($post);
-                $this->send_ajax_response($file);
-            }
+        if (!$attachment_id) {
+            $this->send_ajax_response('false');
         }
-        else {
-            if (file_exists($this->cache['upload_dir'] . $tmp_name)) {
-                @unlink($this->cache['upload_dir'] . $tmp_name);
-                $this->send_ajax_response($file);
-            }
-            else {
-                $this->send_ajax_response('false');
-            }
+
+        if (!$this->current_user_can_manage_attachment($attachment_id, $context_post_id)) {
+            $this->send_ajax_response('Unauthorized.', 'error');
+        }
+
+        $attachment = get_post($attachment_id);
+
+        if (!$attachment || $attachment->post_type !== 'attachment') {
+            $this->send_ajax_response('false');
+        }
+
+        if ($post = wp_delete_attachment($attachment_id, true)) {
+            clean_post_cache($post);
+            $this->send_ajax_response($file);
         }
 
         $this->send_ajax_response('false');
     }
 
-    private static function verify_nonce(): bool
+    public function plupload_ajax_delete_temp_file(): void
     {
-        $nonce_value = isset($_REQUEST['nonce']) ? esc_attr($_REQUEST['nonce']) : null;
+        if (!self::verify_nonce(self::$upload_nonce_key)) {
+            $this->send_ajax_response('Unauthorized.', 'error');
+        }
 
-        //First check nonce field
-        if (!isset($nonce_value) or !wp_verify_nonce($nonce_value, self::$submit_nonce_key)) {
+        if (!empty($_POST['file_wpid'])) {
+            $this->send_ajax_response('Unauthorized.', 'error');
+        }
+
+        $file = substr(sanitize_file_name(wp_unslash($_POST['file_id'] ?? '')), 2);
+        $tmp_name = sanitize_file_name(wp_unslash($_POST['tmp_name'] ?? ''));
+        $tmp_path = $this->get_temp_upload_path($tmp_name);
+
+        if (!$tmp_path || !file_exists($tmp_path)) {
+            $this->send_ajax_response('false');
+        }
+
+        if (@unlink($tmp_path)) {
+            $this->send_ajax_response($file);
+        }
+
+        $this->send_ajax_response('false');
+    }
+
+    private static function verify_nonce(string $nonce_key): bool
+    {
+        $nonce_value = isset($_REQUEST['nonce']) ? sanitize_text_field(wp_unslash($_REQUEST['nonce'])) : null;
+
+        if (!isset($nonce_value) || !wp_verify_nonce($nonce_value, $nonce_key)) {
             return false;
         }
 
@@ -95,52 +107,78 @@ class GFMUHandlePluploader
 
     private function send_ajax_response($response, $type = false)
     {
-        if ($type and is_array($response)) {
-            $response[$type] = $response;
+        if ($type) {
+            if (!is_array($response)) {
+                $response = [
+                    'message' => strval($response),
+                ];
+            }
+
+            $response = [
+                'result' => $type,
+                $type    => $response,
+            ];
         }
 
         header("Content-Type: text/plain");
 
-        echo json_encode($response);
+        echo wp_json_encode($response);
 
         die();
     }
 
     public function plupload_ajax_download_file(): void
     {
-        if (!self::verify_nonce()) {
+        if (!self::verify_nonce(self::$media_nonce_key)) {
+            $this->send_ajax_response('Unauthorized.', 'error');
+        }
+
+        $post_id = isset($_POST['post_id']) ? absint(wp_unslash($_POST['post_id'])) : 0;
+
+        if (!$post_id) {
+            $this->send_ajax_response('Unauthorized.', 'error');
+        }
+
+        if (!$this->current_user_can_access_media_post($post_id)) {
+            $this->send_ajax_response('Unauthorized.', 'error');
+        }
+
+        $meta_key = isset($_POST['get_by_meta']) ? sanitize_text_field(wp_unslash($_POST['get_by_meta'])) : '';
+        $attachment_ids = $this->get_media_attachment_ids($post_id, $meta_key);
+
+        if (empty($attachment_ids)) {
+            $this->send_ajax_response('false');
+        }
+
+        $files_to_zip = [];
+
+        foreach ($attachment_ids as $attachment_id) {
+            if (!$this->current_user_can_download_attachment($attachment_id, $post_id)) {
+                $this->send_ajax_response('Unauthorized.', 'error');
+            }
+
+            $path = get_attached_file($attachment_id, true);
+
+            if (!$path || !file_exists($path)) {
+                continue;
+            }
+
+            $files_to_zip[] = $path;
+        }
+
+        if (empty($files_to_zip)) {
+            $this->send_ajax_response('false');
+        }
+
+        $file = $this->get_temp_archive_path();
+
+        if (!$file || !$this->create_download_archive($files_to_zip, $file)) {
+            if ($file && file_exists($file)) {
+                unlink($file);
+            }
+
             $this->send_ajax_response('Server error.', 'error');
         }
-
-        $post_id = absint($_POST['post_id']);
-
-        if (!$post_id)
-            return;
-
-        $doing_meta = (isset($_POST['get_by_meta']) and !empty($_POST['get_by_meta']));
-
-        $file = tempnam(ABSPATH . "tmp", "zip");
-        $zip = new ZipArchive();
-        $zip->open($file, ZipArchive::OVERWRITE);
-
-        if ($doing_meta) {
-            $images = maybe_unserialize(get_metadata('post', $post_id, sanitize_file_name($_POST['get_by_meta']), true));
-        }
-        else {
-            $images = get_attached_media('image', $post_id);
-        }
-
-        foreach ($images as $image) {
-
-            $path = get_attached_file($doing_meta ? $image : $image->ID, true);
-
-            if (!$path or !file_exists($path))
-                continue;
-
-            $zip->addFile($path, basename($path));
-        }
-
-        $zip->close();
 
         ob_get_clean();
 
@@ -171,6 +209,44 @@ class GFMUHandlePluploader
         return $size;
     }
 
+    private function get_temp_archive_path()
+    {
+        if (function_exists('wp_tempnam')) {
+            return wp_tempnam('gfmu-attachment.zip');
+        }
+
+        return tempnam(sys_get_temp_dir(), 'gfmu-zip-');
+    }
+
+    private function create_download_archive(array $files_to_zip, string $archive_path): bool
+    {
+        if (class_exists('ZipArchive')) {
+            $zip = new ZipArchive();
+            $result = $zip->open($archive_path, ZipArchive::OVERWRITE);
+
+            if ($result !== true) {
+                return false;
+            }
+
+            foreach ($files_to_zip as $path) {
+                $zip->addFile($path, basename($path));
+            }
+
+            return $zip->close();
+        }
+
+        require_once ABSPATH . 'wp-admin/includes/class-pclzip.php';
+
+        if (!class_exists('PclZip')) {
+            return false;
+        }
+
+        $zip = new PclZip($archive_path);
+        $result = $zip->create($files_to_zip, PCLZIP_OPT_REMOVE_ALL_PATH);
+
+        return !empty($result);
+    }
+
     /**
      * Handles ajax request from Pluploader script, checks nonce, grabs validation options from gforms form meta
      * then passes the validation options to the main File Uploader php script to process and move to server
@@ -183,7 +259,7 @@ class GFMUHandlePluploader
         // Include the uploader class
         require_once GFMU_INC_PATH . 'GFMU_FileUploader.php';
 
-        if (!self::verify_nonce()) {
+        if (!self::verify_nonce(self::$upload_nonce_key)) {
             $this->send_ajax_response('Server error.', 'error');
         }
 
@@ -228,6 +304,110 @@ class GFMUHandlePluploader
         ];
 
         return apply_filters('gfmu_server_validation_args', $validation_args, $field_obj);
+    }
+
+    public function current_user_can_access_media_post(int $post_id): bool
+    {
+        if (!$post_id || !is_user_logged_in()) {
+            return false;
+        }
+
+        $post = get_post($post_id);
+
+        if (!$post) {
+            return false;
+        }
+
+        return current_user_can('edit_post', $post_id);
+    }
+
+    public function current_user_can_manage_attachment(int $attachment_id, int $context_post_id = 0): bool
+    {
+        if (!$attachment_id || !is_user_logged_in()) {
+            return false;
+        }
+
+        $attachment = get_post($attachment_id);
+
+        if (!$attachment || $attachment->post_type !== 'attachment') {
+            return false;
+        }
+
+        if (!current_user_can('delete_post', $attachment_id)) {
+            return false;
+        }
+
+        if ($context_post_id && !$this->current_user_can_access_media_post($context_post_id)) {
+            return false;
+        }
+
+        if ($attachment->post_parent) {
+            return current_user_can('edit_post', $attachment->post_parent);
+        }
+
+        return current_user_can('edit_post', $attachment_id);
+    }
+
+    public function current_user_can_download_attachment(int $attachment_id, int $context_post_id = 0): bool
+    {
+        if (!$attachment_id || !is_user_logged_in()) {
+            return false;
+        }
+
+        $attachment = get_post($attachment_id);
+
+        if (!$attachment || $attachment->post_type !== 'attachment') {
+            return false;
+        }
+
+        if ($context_post_id && !$this->current_user_can_access_media_post($context_post_id)) {
+            return false;
+        }
+
+        if ($attachment->post_parent) {
+            return current_user_can('edit_post', $attachment->post_parent);
+        }
+
+        return current_user_can('edit_post', $attachment_id);
+    }
+
+    private function get_media_attachment_ids(int $post_id, string $meta_key = ''): array
+    {
+        if (!$post_id) {
+            return [];
+        }
+
+        $attachment_ids = [];
+
+        if (empty($meta_key)) {
+            $images = get_attached_media('image', $post_id);
+            foreach ($images as $image) {
+                if ($image instanceof WP_Post) {
+                    $attachment_ids[] = intval($image->ID);
+                }
+            }
+        }
+        else {
+            $images = maybe_unserialize(get_metadata('post', $post_id, $meta_key, true));
+            if (is_array($images)) {
+                $attachment_ids = array_map('intval', $images);
+            }
+        }
+
+        $attachment_ids = array_filter(array_unique($attachment_ids));
+
+        return array_values($attachment_ids);
+    }
+
+    private function get_temp_upload_path(string $tmp_name): ?string
+    {
+        $tmp_name = sanitize_file_name($tmp_name);
+
+        if (empty($tmp_name)) {
+            return null;
+        }
+
+        return $this->cache['upload_dir'] . $tmp_name;
     }
 
     /**
@@ -394,6 +574,7 @@ class GFMUHandlePluploader
             $path = $uplo_dir['basedir'] . '/' . self::$upload_tmp_dir_name . '/' . esc_attr($file_name);
 
             $img_thumb_url = $uplo_dir['baseurl'] . '/' . self::$upload_tmp_dir_name . '/' . esc_attr($file_name);
+            $preview_url = $img_thumb_url;
 
             if (!file_exists($path) and $db_search) {
 
@@ -404,11 +585,15 @@ class GFMUHandlePluploader
 
                 $attachment_id = $attachment->ID;
                 $img_thumb_url = wp_get_attachment_image_src($attachment->ID, 'thumbnail');
+                $preview_url = wp_get_attachment_url($attachment->ID);
 
                 if ($img_thumb_url)
                     $img_thumb_url = $img_thumb_url[0];
                 else
                     $img_thumb_url = $attachment->guid;
+
+                if (!$preview_url)
+                    $preview_url = $attachment->guid;
 
                 $path = get_attached_file($attachment->ID, true);
             }
@@ -418,6 +603,7 @@ class GFMUHandlePluploader
                 'o_name'        => sanitize_file_name($_POST["{$file_uid}_name"]),
                 't_name'        => $file_name,
                 'url'           => $img_thumb_url,
+                'preview_url'   => $preview_url,
                 'size'          => $path ? self::filesize($path) : 0,
                 'last_mod_date' => $path ? @filemtime($path) : time(),
                 'wpid'          => $attachment_id,
@@ -480,11 +666,15 @@ class GFMUHandlePluploader
         foreach ($images as $image) {
 
             $img_thumb_url = wp_get_attachment_image_src($image->ID, 'thumbnail');
+            $preview_url = wp_get_attachment_url($image->ID);
 
             if ($img_thumb_url)
                 $img_thumb_url = $img_thumb_url[0];
             else
                 $img_thumb_url = $image->guid;
+
+            if (!$preview_url)
+                $preview_url = $image->guid;
 
             $path = get_attached_file($image->ID, true);
 
@@ -506,6 +696,7 @@ class GFMUHandlePluploader
                 'o_name'        => $file_name,
                 't_name'        => $image->ID,
                 'url'           => $img_thumb_url,
+                'preview_url'   => $preview_url,
                 'size'          => $file_size,
                 'last_mod_date' => $last_mod,
                 'wpid'          => $image->ID,
