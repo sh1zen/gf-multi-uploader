@@ -20,6 +20,12 @@
         return plupload.translate(str) || str;
     }
 
+    function escapeHtml(value) {
+        return String(value == null ? '' : value).replace(/[&<>"']/g, function (character) {
+            return {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[character];
+        });
+    }
+
     function renderUI(obj) {
         obj.id = obj.attr('id');
 
@@ -312,10 +318,10 @@
                     message = _("Upload error.");
                 }
 
-                message = '<strong>' + message + '</strong>';
+                message = '<strong>' + escapeHtml(message) + '</strong>';
 
                 if (details) {
-                    message += " <br /><i>" + details + "</i>";
+                    message += " <br /><i>" + escapeHtml(details) + "</i>";
                 }
 
                 self._trigger('error', null, {up: up, error: err});
@@ -1156,13 +1162,13 @@
                             return plupload.formatSize(file.size);
 
                         case 'ext':
-                            return ext;
+                            return escapeHtml(ext);
 
-                            case 'url':
-                                return file.url || '';
+                        case 'url':
+                            return escapeHtml(file.url || '');
 
                         default:
-                            return file[$1] || '';
+                            return escapeHtml(file[$1] || '');
                     }
                 });
             });

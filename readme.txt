@@ -1,12 +1,13 @@
 === Multi Uploader for Gravity Forms ===
 Contributors: sh1zen
 Tags: uploader, gravity forms, file uploader, gravity forms uploader, plupload
-Donate link: https://www.paypal.com/donate?business=dev.sh1zen%40outlook.it&item_name=Thank+you+in+advanced+for+the+kind+donations.+You+will+sustain+me+developing+GF-Multi-Uploader.&currency_code=EUR
+Donate link: https://www.paypal.com/donate/?hosted_button_id=8G8VR4APG9JRU
 Requires at least: 5.0
-Tested up to: 6.9
+Tested up to: 7.1.2
 Requires PHP: 7.4
-Stable tag: 1.1.9
+Stable tag: 1.1.10
 License: GPLv2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Chunked Multiple file uploads, from images, videos to pdf. Files stored in WP Media Library.
 
@@ -17,6 +18,10 @@ This is an advanced upload plugin for those who need a little more than the defa
 The plugin options page provides you with granular control over many Plupload parameters from file extension filters to chunked uploading and runtimes. 
 
 All files are uploaded to the WordPress media library on successful form submission making for easy access and management. 
+
+Chunk buffers are stored in PHP's system temporary directory and require it to be writable and outside the WordPress document root. Files uploaded before this security update must be uploaded again if their forms have not yet been submitted.
+Temporary staging is limited to 200 pending files and a size budget based on the configured maximum upload size.
+Private chunk buffers have the same size budget and a limit of 200 active uploads.
 
 **FEATURES**
 
@@ -30,7 +35,7 @@ All files are uploaded to the WordPress media library on successful form submiss
 **DONATIONS**
 
 This plugin is free and always will be, but if you are feeling generous and want to show your support, you can buy me a
-beer or coffee [here](https://www.paypal.com/donate?business=dev.sh1zen%40outlook.it&item_name=Thank+you+in+advanced+for+the+kind+donations.+You+will+sustain+me+developing+GF-Multi-Uploader.&currency_code=EUR), I will really appreciate it.
+beer or coffee [here](https://www.paypal.com/donate/?hosted_button_id=8G8VR4APG9JRU), I will really appreciate it.
 
 == Installation ==
 
@@ -40,14 +45,14 @@ WordPress plugin.
 **1. VIA WORDPRESS DASHBOARD**
 
 * Click on ‘Add New’ in the plugins dashboard
-* Search for 'WP Optimizer'
+* Search for 'Multi Uploader for Gravity Forms'
 * Click ‘Install Now’ button
 * Activate the plugin from the same page or from the Plugins Dashboard
 
 **2. VIA UPLOADING THE PLUGIN TO WORDPRESS DASHBOARD**
 
 * Download the plugin to your computer
-  from [https://wordpress.org/plugins/wp-optimizer/](https://wordpress.org/plugins/gravity-forms-multi-uploader/)
+  from [https://wordpress.org/plugins/gf-multi-uploader/](https://wordpress.org/plugins/gf-multi-uploader/)
 * Click on 'Add New' in the plugins dashboard
 * Click on 'Upload Plugin' button
 * Select the zip file of the plugin that you have downloaded to your computer before
@@ -57,7 +62,7 @@ WordPress plugin.
 **3. VIA FTP**
 
 * Download the plugin to your computer
-  from [https://wordpress.org/plugins/wp-optimizer/](https://wordpress.org/plugins/gravity-forms-multi-uploader/)
+  from [https://wordpress.org/plugins/gf-multi-uploader/](https://wordpress.org/plugins/gf-multi-uploader/)
 * Unzip the zip file, which will extract the main directory
 * Upload the main directory (included inside the extracted folder) to the /wp-content/plugins/ directory of your website
 * Activate the plugin from the Plugins Dashboard
@@ -87,6 +92,13 @@ function plupload_i18n( $i18n_filename ) {
 }
 
 == Changelog ==
+
+= 1.1.10 =
+
+* Validate file types before public staging and reject executable double extensions.
+* Store chunk buffers outside the web root and cap assembled upload size.
+* Bind staged files to their upload tokens and form fields; restrict existing media access.
+* Align the text domain with the plugin directory slug and correct the license badge.
 
 = 1.1.9 =
 

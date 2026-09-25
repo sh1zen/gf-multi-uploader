@@ -10,11 +10,8 @@
  *
  *  Handles file upload from Plupload.
  *
- *  1. Creates plupload tmp folder in uploads if not created
- *  2. Adds index.php
- *  3. Validates file extension and mime type against WordPress allowed mimes
- *  4. Handles single or chunked upload of files
- *  5. Also runs a tmp folder cleanup after 1 week or every 1000 requests
+ *  Stages validated uploads, assembles private chunk buffers, and limits
+ *  temporary storage before files are promoted to the media library.
  */
 class GFMU_FileUploader
 {
@@ -22,8 +19,10 @@ class GFMU_FileUploader
 
     public string $inputName = 'file';
     public int $maxFileAge = 18000;
-    public int $chunksCleanupProbability = 1000;
-    public int $chunksExpireIn = 604800; // Once in 1000 requests on avg
+    public int $chunksExpireIn = 3600;
+    public int $maxActiveUploads = 200;
+    public int $maxStagedFiles = 200;
+    public int $maxStagedBytes = 1073741824;
     protected $uploadName;
     private $options;
     private $uuid = null;
@@ -31,7 +30,7 @@ class GFMU_FileUploader
     public function __construct($args = [])
     {
         $this->options = array_merge([
-            'chunksFolder'      => './chunks',
+            'chunksFolder'      => sys_get_temp_dir() . '/gfmu-chunks',
             'allowedExtensions' => 'jpg,jpeg,png,webp',
             'sizeLimit'         => '10mb',
             'maxFiles'          => 1,
@@ -44,6 +43,7 @@ class GFMU_FileUploader
 
         $this->options['allowedExtensions'] = $this->normalizeExtensions($this->options['allowedExtensions']);
         $this->options['sizeLimit'] = $this->toBytes($this->options['sizeLimit']);
+        $this->maxStagedBytes = (int)min(21474836480, max($this->maxStagedBytes, $this->options['sizeLimit'] * 20));
     }
 
     private function normalizeExtensions($extensions): array
@@ -69,24 +69,12 @@ class GFMU_FileUploader
      */
     protected function toBytes($str): int
     {
-        $str = preg_replace('/[^0-9kmgtb]/', '', strtolower($str));
-
-        if (!preg_match("/\b(\d+(?:\.\d+)?)\s*([kmgt]?b)\b/", trim($str), $matches)) {
-            return absint($str);
+        if (!preg_match('/^\s*(\d+(?:\.\d+)?)\s*([kmgt]b?|b)?\s*$/i', (string)$str, $matches)) {
+            return 0;
         }
 
-        $val = absint($matches[1]);
-
-        switch ($matches[2]) {
-            case 'gb':
-                $val *= 1024;
-            case 'mb':
-                $val *= 1024;
-            case 'kb':
-                $val *= 1024;
-        }
-
-        return $val;
+        $powers = ['' => 0, 'b' => 0, 'k' => 1, 'kb' => 1, 'm' => 2, 'mb' => 2, 'g' => 3, 'gb' => 3, 't' => 4, 'tb' => 4];
+        return (int)floor((float)$matches[1] * (1024 ** $powers[strtolower($matches[2] ?? '')]));
     }
 
     /**
@@ -97,13 +85,27 @@ class GFMU_FileUploader
      */
     public function handleUpload(string $uploadDirectory, string $name = '')
     {
-        //Cache upload id for current file
-        $this->uuid = current(explode('.', $this->getName()));
+        // Keep every upload path below its intended directory.
+        $name = $name !== '' ? $name : $this->getName();
+        if (preg_match('~[/\\\\\x00-\x1f]~', $name)) {
+            return array('result' => 'error', 'error' => array('code' => 100, 'message' => __('Invalid file name.', 'gf-multi-uploader')));
+        }
 
-        if (is_writable($this->options['chunksFolder']) and (rand(1, $this->chunksCleanupProbability) === 1)) {
+        if ($this->hasExecutableExtension($name)) {
+            return array('result' => 'error', 'error' => array('code' => 100, 'message' => __('Invalid file extension.', 'gf-multi-uploader')));
+        }
 
-            // Run garbage collection
-            $this->cleanupChunks();
+        $name = sanitize_file_name($name);
+        if ($name === '' || $name[0] === '.' || strpos($name, '.') === false) {
+            return array('result' => 'error', 'error' => array('code' => 100, 'message' => __('Invalid file name.', 'gf-multi-uploader')));
+        }
+
+        $this->uuid = explode('.', $name)[0];
+
+        // Reject executable and disallowed extensions before writing even a chunk.
+        $extension = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+        if ($this->hasExecutableExtension($name) || !$this->extensionIsAllowed($extension)) {
+            return array('result' => 'error', 'error' => array('code' => 100, 'message' => __('File has an invalid extension.', 'gf-multi-uploader')));
         }
 
         // Check that the max upload size specified in class configuration does not
@@ -116,7 +118,7 @@ class GFMU_FileUploader
                     'file_uid' => $this->uuid,
                     'error'    => array(
                         'code'    => 100,
-                        'message' => __("Server Error. Max file size too high, try activate chunking.", "gfmu-locale")
+                        'message' => __("Server Error. Max file size too high, try activate chunking.", "gf-multi-uploader")
                     )
                 );
             }
@@ -142,7 +144,7 @@ class GFMU_FileUploader
                 'file_uid' => $this->uuid,
                 'error'    => array(
                     'code'    => 100,
-                    'message' => __("Server error. Uploads directory isn't writable or executable.", "gfmu-locale")
+                    'message' => __("Server error. Uploads directory isn't writable or executable.", "gf-multi-uploader")
                 )
             );
         }
@@ -165,30 +167,13 @@ class GFMU_FileUploader
                 'file_uid' => $this->uuid,
                 'error'    => array(
                     'code'    => 100,
-                    'message' => __("Server error. Not a multipart request. Please set forceMultipart to default value (true).", "gfmu-locale")
+                    'message' => __("Server error. Not a multipart request. Please set forceMultipart to default value (true).", "gf-multi-uploader")
                 )
             );
         }
 
         // Get size and name
         $size = $_FILES[$this->inputName]['size'];
-
-        if (empty($name)) {
-            $name = $this->getName();
-        }
-
-        // Validate name
-
-        if (empty($name)) {
-            return array(
-                'result'   => 'error',
-                'file_uid' => $this->uuid,
-                'error'    => array(
-                    'code'    => 100,
-                    'message' => __("File name is empty.", "gfmu-locale")
-                )
-            );
-        }
 
         // Validate file size
 
@@ -198,7 +183,7 @@ class GFMU_FileUploader
                 'file_uid' => $this->uuid,
                 'error'    => array(
                     'code'    => 100,
-                    'message' => __("File is empty.", "gfmu-locale")
+                    'message' => __("File is empty.", "gf-multi-uploader")
                 )
             );
         }
@@ -209,7 +194,7 @@ class GFMU_FileUploader
                 'file_uid' => $this->uuid,
                 'error'    => array(
                     'code'    => 100,
-                    'message' => sprintf(__("File is too large. Max %s Mb", "gfmu-locale"), $this->options['sizeLimit'])
+                    'message' => sprintf(__("File is too large. Max %s Mb", "gf-multi-uploader"), $this->options['sizeLimit'])
                 )
             );
         }
@@ -230,19 +215,25 @@ class GFMU_FileUploader
 
         //Check for chunked uploads
         $totalParts = isset($_REQUEST['chunks']) ? (int)$_REQUEST['chunks'] : 1;
+        $partIndex = isset($_REQUEST['chunk']) ? (int)$_REQUEST['chunk'] : 0;
+        if ($totalParts < 1 || $totalParts > 10000 || $partIndex < 0 || $partIndex >= $totalParts) {
+            return array('result' => 'error', 'error' => array('code' => 100, 'message' => __('Invalid chunk index.', 'gf-multi-uploader')));
+        }
 
         //Handle chunked uploads
         if ($totalParts > 1) {
 
+            $upload_id = isset($_REQUEST['upload_id']) && is_string($_REQUEST['upload_id']) ? $_REQUEST['upload_id'] : '';
+            if (!preg_match('/^[a-f0-9]{32}$/', $upload_id)) {
+                return array('result' => 'error', 'error' => array('code' => 100, 'message' => __('Invalid upload identifier.', 'gf-multi-uploader')));
+            }
+
             $chunksFolder = $this->options['chunksFolder'];
 
             //First check to see if requested uploads dir exists, if not make it
-            if (!file_exists($chunksFolder)) {
-                mkdir($chunksFolder);
-                chmod($chunksFolder, 0744);
+            if (!is_dir($chunksFolder) && !mkdir($chunksFolder, 0700, true)) {
+                return array('result' => 'error', 'error' => array('code' => 100, 'message' => __('Failed to create chunks directory.', 'gf-multi-uploader')));
             }
-
-            $partIndex = (int)$_REQUEST['chunk'];
 
             if (!is_writable($chunksFolder)) {
                 return array(
@@ -250,28 +241,51 @@ class GFMU_FileUploader
                     'file_uid' => $this->uuid,
                     'error'    => array(
                         'code'    => 100,
-                        'message' => __("Server error. Chunks directory isn't writable or executable.", "gfmu-locale")
+                        'message' => __("Server error. Chunks directory isn't writable or executable.", "gf-multi-uploader")
                     )
                 );
             }
 
-            $targetFolder = $this->options['chunksFolder'] . DIRECTORY_SEPARATOR . $this->uuid;
+            $targetFolder = $this->options['chunksFolder'] . DIRECTORY_SEPARATOR . $upload_id;
+            $private_lock = $this->lockChunkQuota($targetFolder, $partIndex, (int)$size);
+            if (!$private_lock) {
+                return array('result' => 'error', 'error' => array('code' => 100, 'message' => __('Temporary chunk quota reached.', 'gf-multi-uploader')));
+            }
+            try {
+            if (!is_dir($targetFolder) && $partIndex !== 0) {
+                return array('result' => 'error', 'error' => array('code' => 100, 'message' => __('Missing first chunk.', 'gf-multi-uploader')));
+            }
 
-            if (!file_exists($targetFolder)) {
-                mkdir($targetFolder);
+            if (!is_dir($targetFolder) && !mkdir($targetFolder, 0700)) {
+                return array('result' => 'error', 'error' => array('code' => 100, 'message' => __('Failed to create chunk buffer.', 'gf-multi-uploader')));
             }
 
             //Cache a unique tmp file path in chunks dir to buffer the file chunks
-            $tmp_chunk_file_path = $targetFolder . "/{$name}.part";
+            $tmp_chunk_file_path = $targetFolder . '/upload.part';
+            if ($partIndex !== 0 && !is_file($tmp_chunk_file_path)) {
+                return array('result' => 'error', 'error' => array('code' => 100, 'message' => __('Missing earlier chunk.', 'gf-multi-uploader')));
+            }
 
             //Open the temp file
-            $out = @fopen($tmp_chunk_file_path, $partIndex == 0 ? "wb" : "ab");
+            $out = @fopen($tmp_chunk_file_path, 'c+b');
 
             //If tmp file has been opened successfully start to write the stream to it
-            if ($out) {
+            if ($out && flock($out, LOCK_EX)) {
+
+                if ($partIndex === 0) {
+                    ftruncate($out, 0);
+                    rewind($out);
+                }
+                $current_size = fstat($out)['size'];
+                if ($current_size + $size > $this->options['sizeLimit']) {
+                    flock($out, LOCK_UN);
+                    fclose($out);
+                    return array('result' => 'error', 'error' => array('code' => 100, 'message' => __('File is too large.', 'gf-multi-uploader')));
+                }
+                fseek($out, 0, SEEK_END);
 
                 // Read binary input stream and append it to temp file
-                $chunked_input_data_stream = esc_attr($_FILES[$this->inputName]['tmp_name']);
+                $chunked_input_data_stream = $_FILES[$this->inputName]['tmp_name'];
                 $in = @fopen($chunked_input_data_stream, "rb");
 
                 //If stream file has been opened then start to write the tmp file to the destination file
@@ -283,87 +297,99 @@ class GFMU_FileUploader
                     }
                 }
                 else {
+                    flock($out, LOCK_UN);
+                    fclose($out);
                     return array(
                         'result'   => 'error',
                         'file_uid' => $this->uuid,
                         'error'    => array(
                             'code'    => 100,
-                            'message' => __("Failed to open input stream", "gfmu-locale")
+                            'message' => __("Failed to open input stream", "gf-multi-uploader")
                         )
                     );
                 }
 
                 @fclose($in);
+                flock($out, LOCK_UN);
                 @fclose($out);
+                @touch($targetFolder);
             }
             else {
+                if ($out) {
+                    fclose($out);
+                }
                 return array(
                     'result'   => 'error',
                     'file_uid' => $this->uuid,
                     'error'    => array(
                         'code'    => 100,
-                        'message' => __("Failed to open chunk destination file", "gfmu-locale")
+                        'message' => __("Failed to open chunk destination file", "gf-multi-uploader")
                     )
                 );
+            }
+            } finally {
+                flock($private_lock, LOCK_UN);
+                fclose($private_lock);
             }
 
             //So we have buffered the last chunk of the stream lets move the file into the main dir
             if ($totalParts - 1 == $partIndex) {
+                // Other requests can still append to the chunk buffer. Validate a private
+                // snapshot so the bytes checked are the same bytes later promoted.
+                $complete_file = tempnam(sys_get_temp_dir(), 'gfmu-');
+                if (!$complete_file || !copy($tmp_chunk_file_path, $complete_file)) {
+                    if ($complete_file) {
+                        @unlink($complete_file);
+                    }
+                    return array('result' => 'error', 'file_uid' => $this->uuid, 'error' => array('code' => 100, 'message' => __('Failed to prepare final buffer file.', 'gf-multi-uploader')));
+                }
 
-                $file_info = $this->getUniqueTargetPath($uploadDirectory, $name);
+                try {
+                    $validate_result = $this->validateUploadedFile($name, $complete_file);
+                    if ($validate_result !== true) {
+                        @unlink($tmp_chunk_file_path);
+                        @rmdir($targetFolder);
+                        return $validate_result;
+                    }
 
-                if (isset($file_info['file_path'])) {
+                    clearstatcache(true, $complete_file);
+                    $complete_size = filesize($complete_file);
+                    if ($complete_size === false || $complete_size > $this->options['sizeLimit']) {
+                        @unlink($tmp_chunk_file_path);
+                        @rmdir($targetFolder);
+                        return array('result' => 'error', 'file_uid' => $this->uuid, 'error' => array('code' => 100, 'message' => __('File is too large.', 'gf-multi-uploader')));
+                    }
 
-                    $target = esc_attr($file_info['file_path']);
-
-                    if ($this->move_file($tmp_chunk_file_path, $target)) {
-
-                        //Validate whole tmp file
-                        if (($validate_result = $this->validateUploadedFile($name, $target)) !== true) {
-
-                            //Delete files
-                            @unlink($tmp_chunk_file_path);
-                            @unlink($target);
-
-                            //Return result to user
-                            return $validate_result;
-
+                    $quota_lock = $this->lockStagingQuota($uploadDirectory, $complete_size);
+                    if (!$quota_lock) {
+                        @unlink($tmp_chunk_file_path);
+                        @rmdir($targetFolder);
+                        return array('result' => 'error', 'file_uid' => $this->uuid, 'error' => array('code' => 100, 'message' => __('Temporary upload quota reached.', 'gf-multi-uploader')));
+                    }
+                    try {
+                        $file_info = $this->getUniqueTargetPath($uploadDirectory, $name);
+                        if (!isset($file_info['file_path'])) {
+                            return array('result' => 'error', 'file_uid' => $this->uuid, 'error' => array('code' => 100, 'message' => __('Error generating final file path.', 'gf-multi-uploader')));
                         }
 
-                        //Remove the chunk tmp folder for this file
+                        if (!$this->move_file($complete_file, $file_info['file_path'])) {
+                            return array('result' => 'error', 'file_uid' => $this->uuid, 'error' => array('code' => 100, 'message' => __('Failed to move final buffer file.', 'gf-multi-uploader')));
+                        }
+
+                        @unlink($tmp_chunk_file_path);
                         @rmdir($targetFolder);
 
-                        //Return that all is ok
                         return array(
                             'result'   => 'success',
                             'file_uid' => $this->uuid,
-                            'success'  => array(
-                                "file_id" => $file_info['file_name']
-                            )
+                            'success'  => array('file_id' => $file_info['file_name'])
                         );
-
+                    } finally {
+                        flock($quota_lock, LOCK_UN);
+                        fclose($quota_lock);
                     }
-                    else {
-                        return array(
-                            'result'   => 'error',
-                            'file_uid' => $this->uuid,
-                            'error'    => array(
-                                'code'    => 100,
-                                'message' => __("Failed to move final buffer file", "gfmu-locale")
-                            )
-                        );
-                    }
-
-                }
-                else {
-                    return array(
-                        'result'   => 'error',
-                        'file_uid' => $this->uuid,
-                        'error'    => array(
-                            'code'    => 100,
-                            'message' => __("Error generating final file path", "gfmu-locale")
-                        )
-                    );
+                } finally {
+                    @unlink($complete_file);
                 }
 
             }
@@ -380,27 +406,42 @@ class GFMU_FileUploader
                 return $validate_result;
             }
 
-            $file_info = $this->getUniqueTargetPath($uploadDirectory, $name);
-            $this->uuid = current(explode('.', $name));
+            $quota_lock = $this->lockStagingQuota($uploadDirectory, (int)$size);
+            if (!$quota_lock) {
+                return array('result' => 'error', 'file_uid' => $this->uuid, 'error' => array('code' => 100, 'message' => __('Temporary upload quota reached.', 'gf-multi-uploader')));
+            }
+            try {
+                $file_info = $this->getUniqueTargetPath($uploadDirectory, $name);
 
-            if (isset($file_info['file_name'], $file_info['file_path'], $_FILES[$this->inputName]['tmp_name'])) {
+                if (isset($file_info['file_name'], $file_info['file_path'], $_FILES[$this->inputName]['tmp_name'])) {
 
-                $target = $file_info['file_path'];
+                    $target = $file_info['file_path'];
 
-                if ($target) {
-                    $this->uploadName = basename($target);
+                    if ($target) {
+                        $this->uploadName = basename($target);
+                        $reservation = @fopen($target, 'xb');
+                        if ($reservation) {
+                            fclose($reservation);
+                        }
 
-                    if (move_uploaded_file($_FILES[$this->inputName]['tmp_name'], $target)) {
-                        return array(
-                            'result'   => 'success',
-                            'file_uid' => $this->uuid,
-                            'success'  => array(
-                                "file_id" => $file_info['file_name']
-                            )
-                        );
+                        if ($reservation && move_uploaded_file($_FILES[$this->inputName]['tmp_name'], $target)) {
+                            return array(
+                                'result'   => 'success',
+                                'file_uid' => $this->uuid,
+                                'success'  => array(
+                                    "file_id" => $file_info['file_name']
+                                )
+                            );
+                        }
+                        if ($reservation) {
+                            @unlink($target);
+                        }
                     }
-                }
 
+                }
+            } finally {
+                flock($quota_lock, LOCK_UN);
+                fclose($quota_lock);
             }
 
             return array(
@@ -408,7 +449,7 @@ class GFMU_FileUploader
                 'file_uid' => $this->uuid,
                 'error'    => array(
                     'code'    => 100,
-                    'message' => __("The upload was cancelled, or server error encountered", "gfmu-locale")
+                    'message' => __("The upload was cancelled, or server error encountered", "gf-multi-uploader")
                 )
             );
         }
@@ -420,13 +461,13 @@ class GFMU_FileUploader
     public function getName(): ?string
     {
         if (isset($_REQUEST['filename']))
-            return esc_attr($_REQUEST['filename']);
+            return is_string($_REQUEST['filename']) ? wp_unslash($_REQUEST['filename']) : '';
 
         if (isset($_REQUEST['name']))
-            return esc_attr($_REQUEST['name']);
+            return is_string($_REQUEST['name']) ? wp_unslash($_REQUEST['name']) : '';
 
         if (isset($_FILES[$this->inputName]))
-            return esc_attr($_FILES[$this->inputName]['name']);
+            return is_string($_FILES[$this->inputName]['name']) ? $_FILES[$this->inputName]['name'] : '';
 
         return '';
     }
@@ -491,7 +532,7 @@ class GFMU_FileUploader
 
         $path_parts = pathinfo($filename);
 
-        $filename = $obfuscation ? md5(time() . SECURE_AUTH_SALT . $path_parts['filename']) : $path_parts['filename'];
+        $filename = $obfuscation ? bin2hex(random_bytes(16)) : $path_parts['filename'];
 
         $path = $path_parts['dirname'] === '.' ? '' : "{$path_parts['dirname']}/";
 
@@ -536,6 +577,89 @@ class GFMU_FileUploader
         return $wrapper . $path;
     }
 
+    /** Serialize chunk writes and bound the number and total size of private buffers. */
+    private function lockChunkQuota(string $targetFolder, int $partIndex, int $incoming_size)
+    {
+        $root = $this->options['chunksFolder'];
+        $lock = @fopen($root . '/.stage.lock', 'c+b');
+        if (!$lock || !flock($lock, LOCK_EX)) {
+            if ($lock) {
+                fclose($lock);
+            }
+            return false;
+        }
+
+        if ($partIndex === 0) {
+            $this->cleanupChunks();
+        }
+        $items = scandir($root);
+        if ($items === false) {
+            flock($lock, LOCK_UN);
+            fclose($lock);
+            return false;
+        }
+        $active = 0;
+        $bytes = 0;
+        foreach ($items as $item) {
+            $directory = $root . DIRECTORY_SEPARATOR . $item;
+            if ($item === '.' || $item === '..' || !is_dir($directory)) {
+                continue;
+            }
+            $active++;
+            $buffer = $directory . '/upload.part';
+            if (is_file($buffer)) {
+                $bytes += (int)filesize($buffer);
+            }
+        }
+        $existing = is_file($targetFolder . '/upload.part') ? (int)filesize($targetFolder . '/upload.part') : 0;
+        if ((!is_dir($targetFolder) && $active >= $this->maxActiveUploads)
+            || $bytes - ($partIndex === 0 ? $existing : 0) + $incoming_size > $this->maxStagedBytes) {
+            flock($lock, LOCK_UN);
+            fclose($lock);
+            return false;
+        }
+        return $lock;
+    }
+
+    /** Hold a private lock while checking the total public staging budget. */
+    private function lockStagingQuota(string $uploadDirectory, int $incoming_size)
+    {
+        $private_directory = $this->options['chunksFolder'];
+        if (!is_dir($private_directory) && !mkdir($private_directory, 0700, true)) {
+            return false;
+        }
+        $lock = @fopen($private_directory . '/.stage.lock', 'c+b');
+        if (!$lock || !flock($lock, LOCK_EX)) {
+            if ($lock) {
+                fclose($lock);
+            }
+            return false;
+        }
+
+        $files = scandir($uploadDirectory);
+        if ($files === false) {
+            flock($lock, LOCK_UN);
+            fclose($lock);
+            return false;
+        }
+        $count = 0;
+        $bytes = 0;
+        foreach ($files as $file) {
+            $path = $uploadDirectory . DIRECTORY_SEPARATOR . $file;
+            if ($file === '.' || $file === '..' || $file === 'index.php' || !is_file($path)) {
+                continue;
+            }
+            $count++;
+            $bytes += (int)filesize($path);
+        }
+        if ($count >= $this->maxStagedFiles || $bytes + $incoming_size > $this->maxStagedBytes) {
+            flock($lock, LOCK_UN);
+            fclose($lock);
+            return false;
+        }
+        return $lock;
+    }
+
     /**
      * move_file
      *
@@ -544,38 +668,36 @@ class GFMU_FileUploader
      */
     private function move_file($current_path = null, $destination_path = null): bool
     {
-        //Init vars
-        $result = false;
-
-        if (isset($current_path) && file_exists($current_path)) {
-
-            //First check if destination dir exists if not make it
-            if (!file_exists(dirname($destination_path))) {
-                mkdir(dirname($destination_path));
-            }
-
-            if (file_exists(dirname($destination_path))) {
-
-                //Move file into dir
-                if (copy($current_path, $destination_path)) {
-                    unlink($current_path);
-
-                    if (file_exists($destination_path)) {
-                        $result = true;
-                    }
-                }
-            }
+        if (!is_file($current_path) || !is_dir(dirname($destination_path))) {
+            return false;
         }
-        return $result;
+
+        $source = @fopen($current_path, 'rb');
+        $destination = $source ? @fopen($destination_path, 'xb') : false;
+        if (!$source || !$destination) {
+            if ($source) {
+                fclose($source);
+            }
+            return false;
+        }
+
+        $expected_size = fstat($source)['size'];
+        $copied_size = stream_copy_to_stream($source, $destination);
+        fclose($destination);
+        fclose($source);
+        if ($copied_size === false || $copied_size !== $expected_size) {
+            @unlink($destination_path);
+            return false;
+        }
+
+        @unlink($current_path);
+        return true;
     }
 
     /**
      * validateUploadedFile
      *
-     * Validates both a files extension and then the mime type is compared to the WordPress allowed mime types array
-     *
-     * Note that the method prefers to use finfo to check the mime type but falls
-     * back to mime_content_type() and then no mime validation if neither function is available
+     * Validates the filename and contents against the field and WordPress MIME maps.
      *
      * @param string|null $name
      * @param string|null $file_path - defaults to $_FILES[$this->inputName]['tmp_name']
@@ -583,10 +705,6 @@ class GFMU_FileUploader
      */
     protected function validateUploadedFile(string $name = '', string $file_path = '')
     {
-        //Init vars
-        $mime_type = null;
-        $wp_filetype = null;
-
         if (empty($file_path)) {
             $file_path = $_FILES[$this->inputName]['tmp_name'];
         }
@@ -595,7 +713,7 @@ class GFMU_FileUploader
         $pathinfo = pathinfo($name);
         $ext = strtolower($pathinfo['extension'] ?? '');
 
-        if ($this->options['allowedExtensions'] and !in_array($ext, $this->options['allowedExtensions'], true)) {
+        if ($this->hasExecutableExtension($name) || !$this->extensionIsAllowed($ext)) {
             $these = implode(', ', $this->options['allowedExtensions']);
 
             @unlink($file_path);
@@ -605,68 +723,59 @@ class GFMU_FileUploader
                 'file_uid' => $this->uuid,
                 'error'    => array(
                     'code'    => 100,
-                    'message' => sprintf(__("File has an invalid extension, it should be one of %s.", "gfmu-locale"), $these)
+                    'message' => sprintf(__("File has an invalid extension, it should be one of %s.", "gf-multi-uploader"), $these)
                 )
             );
         }
 
         $wp_filetype = wp_check_filetype_and_ext($file_path, $name, $this->options['allowed_mimes']);
 
-        if (!empty($wp_filetype['ext']) && !in_array(strtolower($wp_filetype['ext']), $this->options['allowedExtensions'], true)) {
-            @unlink($file_path);
-
-            return array(
-                'result'   => 'error',
-                'file_uid' => $this->uuid,
-                'error'    => array(
-                    'code'    => 100,
-                    'message' => sprintf(__("File has an invalid extension, it should be one of %s.", "gfmu-locale"), implode(', ', $this->options['allowedExtensions']))
-                )
-            );
-        }
-
         $allowed_mimes_for_extension = $this->getAllowedMimesForExtension($ext);
 
-        if (!empty($wp_filetype['type']) && $this->mimeMatchesAllowed($wp_filetype['type'], $allowed_mimes_for_extension)) {
-            return true;
-        }
-
-        //First check which php tools we have
-        if (function_exists('finfo_open')) {
-            $finfo = finfo_open(FILEINFO_MIME_TYPE);
-            $mime_type = finfo_file($finfo, $file_path);
-            finfo_close($finfo);
-
-        }
-
-        if (empty($mime_type) and function_exists('mime_content_type')) {
-            $mime_type = mime_content_type($file_path);
-        }
-
-        if (!empty($mime_type) && $this->mimeMatchesAllowed($mime_type, $allowed_mimes_for_extension)) {
-            return true;
-        }
-
-        // If WordPress identified the file type correctly, trust that before failing on stricter PHP detectors.
-        if (!empty($wp_filetype['type']) && $this->mimeMatchesAllowed($wp_filetype['type'], array_values($this->options['allowed_mimes']))) {
-            return true;
-        }
-
-        //Stop nasty mime types
-        if (empty($mime_type) or !$this->mimeMatchesAllowed($mime_type, array_values($this->options['allowed_mimes']))) {
-
+        if (empty($allowed_mimes_for_extension)
+            || empty($wp_filetype['ext'])
+            || strtolower($wp_filetype['ext']) !== $ext
+            || empty($wp_filetype['type'])
+            || !$this->mimeMatchesAllowed($wp_filetype['type'], $allowed_mimes_for_extension)) {
             @unlink($file_path);
 
             return array(
                 'result'   => 'error',
                 'file_uid' => $this->uuid,
-                'error'    => array(
-                    'code'    => 100,
-                    'message' => sprintf(__("File Type Error: %s.", "gfmu-locale"), $mime_type)
-                )
+                'error'    => array('code' => 100, 'message' => __('File has an invalid type or extension.', 'gf-multi-uploader'))
             );
         }
+
         return true;
+    }
+
+    /** Recheck a staged file against the destination field before creating media. */
+    public function validateStagedFile(string $name, string $path): bool
+    {
+        clearstatcache(true, $path);
+        $size = @filesize($path);
+        return !$this->hasExecutableExtension($name) && $size !== false && $size > 0 && $size <= $this->options['sizeLimit']
+            && $this->validateUploadedFile($name, $path) === true;
+    }
+
+    /** Reject executable suffixes in every filename segment, including double extensions. */
+    private function hasExecutableExtension(string $name): bool
+    {
+        foreach (array_slice(explode('.', strtolower($name)), 1) as $segment) {
+            if (preg_match('/^(?:php|pht|phar|(?:shtml|cgi|pl|py|rb|asp|aspx|jsp|sh|bash|exe|dll|bat|cmd|ps1)(?:$|[_-]))/', $segment)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Check the filename against the configured field and WordPress MIME map. */
+    private function extensionIsAllowed(string $extension): bool
+    {
+        return $extension !== ''
+            && !$this->hasExecutableExtension('file.' . $extension)
+            && (!$this->options['allowedExtensions'] || in_array($extension, $this->options['allowedExtensions'], true))
+            && !empty($this->getAllowedMimesForExtension($extension));
     }
 
     private function getAllowedMimesForExtension(string $extension): array

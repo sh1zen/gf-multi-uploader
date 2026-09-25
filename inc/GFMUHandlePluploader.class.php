@@ -83,11 +83,16 @@ class GFMUHandlePluploader
         $tmp_name = sanitize_file_name(wp_unslash($_POST['tmp_name'] ?? ''));
         $tmp_path = $this->get_temp_upload_path($tmp_name);
 
+        if (!$this->owns_staged_file($tmp_name, sanitize_text_field(wp_unslash($_POST['upload_token'] ?? '')))) {
+            $this->send_ajax_response('Unauthorized.', 'error');
+        }
+
         if (!$tmp_path || !file_exists($tmp_path)) {
             $this->send_ajax_response('false');
         }
 
         if (@unlink($tmp_path)) {
+            delete_transient($this->staged_file_key($tmp_name));
             $this->send_ajax_response($file);
         }
 
@@ -263,10 +268,25 @@ class GFMUHandlePluploader
             $this->send_ajax_response('Server error.', 'error');
         }
 
-        $uploader = new GFMU_FileUploader($this->pluploader_server_settings());
+        $settings = $this->pluploader_server_settings();
+        if (!$settings) {
+            $this->send_ajax_response('Invalid upload field.', 'error');
+        }
+        $uploader = new GFMU_FileUploader($settings);
 
         // Call handleUpload() with the name of the folder, relative to PHP's getcwd()
         $result = $uploader->handleUpload($this->cache['wp_upload_dir']['basedir'] . '/' . self::$upload_tmp_dir_name);
+
+        if (isset($result['result'], $result['success']['file_id']) && $result['result'] === 'success') {
+            $file_name = $result['success']['file_id'];
+            $token = wp_generate_password(40, false, false);
+            set_transient($this->staged_file_key($file_name), [
+                'token_hash' => hash('sha256', $token),
+                'form_id' => absint($_REQUEST['currentFormID']),
+                'field_id' => absint($_REQUEST['currentFieldID']),
+            ], 5 * HOUR_IN_SECONDS);
+            $result['success']['upload_token'] = $token;
+        }
 
         $this->send_ajax_response($result);
     }
@@ -287,13 +307,25 @@ class GFMUHandlePluploader
 
         $field_obj = RGFormsModel::get_field($current_form_id, $current_field_id);
 
-        if ($field_obj->type !== 'multi-uploader')
+        if (!$field_obj || $field_obj->type !== 'multi-uploader')
             return [];
 
         $field_options = $field_obj->get_gfmu_field_settings();
 
+        $private_temp = realpath(sys_get_temp_dir());
+        $public_root = realpath(ABSPATH);
+        $uploads_root = realpath($this->cache['wp_upload_dir']['basedir']);
+        $private_path = $private_temp ? trailingslashit(wp_normalize_path($private_temp)) : '';
+        if (!$private_temp || !$public_root || !$uploads_root
+            || strpos($private_path, trailingslashit(wp_normalize_path($public_root))) === 0
+            || strpos($private_path, trailingslashit(wp_normalize_path($uploads_root))) === 0) {
+            return [];
+        }
+
+        $chunks_folder = $private_temp . '/gfmu-chunks-' . hash('sha256', $this->cache['wp_upload_dir']['basedir']);
+
         $validation_args = [
-            'chunksFolder'      => $this->cache['wp_upload_dir']['basedir'] . '/' . self::$upload_tmp_dir_name . '/chunks',
+            'chunksFolder'      => $chunks_folder,
             'allowedExtensions' => $field_options['filters']['files'],
             'sizeLimit'         => $field_options['max_file_size'],
             'maxFiles'          => $field_options['max_files'],
@@ -303,7 +335,31 @@ class GFMUHandlePluploader
             'allowed_mimes'     => get_allowed_mime_types()
         ];
 
-        return apply_filters('gfmu_server_validation_args', $validation_args, $field_obj);
+        $validation_args = apply_filters('gfmu_server_validation_args', $validation_args, $field_obj);
+        if (!is_array($validation_args)) {
+            return [];
+        }
+        // The private chunk location is a security boundary, not a field option.
+        $validation_args['chunksFolder'] = $chunks_folder;
+        return $validation_args;
+    }
+
+    /** Keep a per-file capability in a WordPress transient for guest uploads. */
+    private function staged_file_key(string $basename): string
+    {
+        return 'gfmu_file_' . hash('sha256', $basename);
+    }
+
+    private function owns_staged_file(string $basename, string $token, int $form_id = 0, int $field_id = 0): bool
+    {
+        if ($basename === '' || $token === '') {
+            return false;
+        }
+        $staged = get_transient($this->staged_file_key($basename));
+        return is_array($staged) && isset($staged['token_hash'])
+            && hash_equals($staged['token_hash'], hash('sha256', $token))
+            && (!$form_id || $staged['form_id'] === $form_id)
+            && (!$field_id || $staged['field_id'] === $field_id);
     }
 
     public function current_user_can_access_media_post(int $post_id): bool
@@ -428,6 +484,8 @@ class GFMUHandlePluploader
             'ext'         => '',
             'post_parent' => 0,
             'form_id'     => 0,
+            'field_id'    => 0,
+            'upload_token' => '',
             'entry_id'    => 0
         ], $args);
 
@@ -438,28 +496,63 @@ class GFMUHandlePluploader
 
         $args = apply_filters('gfmu_maybe_insert_attachment', $args);
 
+        // Posted and filtered names must identify a file in the staging directory.
+        if (!is_string($args['basename']) || $args['basename'] === '' || $args['basename'][0] === '.'
+            || sanitize_file_name($args['basename']) !== $args['basename']) {
+            return false;
+        }
+
         $uploaded_file_path = $pluploader_tmp_dir . $args['basename'];
 
         if (!file_exists($uploaded_file_path)) {
 
-            if (is_numeric($args['basename'])) {
-                $may_exist = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->posts} WHERE ID = %d AND post_type = 'attachment';", $args['basename']));
-                if ($may_exist)
-                    return intval($args['basename']);
+            if (ctype_digit($args['basename'])) {
+                $attachment_id = absint($args['basename']);
+                if ($this->current_user_can_download_attachment($attachment_id, absint($args['post_parent']))) {
+                    return $attachment_id;
+                }
             }
 
             return 0;
         }
 
-        //Cache destination file path
-        $wp_dest_file_path = $wp_upload_dir['path'] . '/' . $args['basename'];
+        if (!$this->owns_staged_file($args['basename'], (string)$args['upload_token'], absint($args['form_id']), absint($args['field_id']))) {
+            return false;
+        }
 
-        $wp_filetype = wp_check_filetype($uploaded_file_path);
+        $field = RGFormsModel::get_field(absint($args['form_id']), absint($args['field_id']));
+        if (!$field || $field->type !== 'multi-uploader') {
+            return false;
+        }
+        $field_options = $field->get_gfmu_field_settings();
+        require_once GFMU_INC_PATH . 'GFMU_FileUploader.php';
+        $validator = new GFMU_FileUploader([
+            'allowedExtensions' => $field_options['filters']['files'],
+            'sizeLimit' => $field_options['max_file_size'],
+            'allowed_mimes' => get_allowed_mime_types(),
+        ]);
+        if (!$validator->validateStagedFile($args['basename'], $uploaded_file_path)) {
+            return false;
+        }
+
+        //Cache destination file path
+        $destination_name = wp_unique_filename($wp_upload_dir['path'], $args['basename']);
+        $wp_dest_file_path = $wp_upload_dir['path'] . '/' . $destination_name;
+
+        $wp_filetype = wp_check_filetype_and_ext($uploaded_file_path, $args['basename'], get_allowed_mime_types());
+
+        // Reject executable or unknown staged files before copying to public uploads.
+        $extension = strtolower(pathinfo($args['basename'], PATHINFO_EXTENSION));
+        if (preg_match('/^(?:php[0-9]*|phtml|phar|shtml|cgi|pl|py|rb|asp|aspx|jsp|sh|bash|exe|dll|bat|cmd|ps1)$/i', $extension)
+            || empty($wp_filetype['ext']) || empty($wp_filetype['type'])
+            || strtolower($wp_filetype['ext']) !== $extension) {
+            return false;
+        }
 
         //First let's move this file into the wp uploads dir structure
         $move_status = GFMUHandlePluploader::move_file($uploaded_file_path, $wp_dest_file_path);
 
-        if ($move_status and $wp_filetype['type']) {
+        if ($move_status) {
 
             //Create a unique and descriptive post title - associate with form and entry
             $post_title = 'Form ' . $args['form_id'] . ' Entry ' . $args['entry_id'] . ' Fileupload ' . $args['order'];
@@ -482,6 +575,7 @@ class GFMUHandlePluploader
 
             //Error check
             if (!is_wp_error($attach_id) and $attach_id) {
+                delete_transient($this->staged_file_key($args['basename']));
                 wp_update_attachment_metadata($attach_id, wp_generate_attachment_metadata($attach_id, $wp_dest_file_path));
             }
             else {
@@ -519,14 +613,22 @@ class GFMUHandlePluploader
             }
 
             if (file_exists(dirname($destination_path))) {
-
-                //Move file into dir
-                if (copy($current_path, $destination_path)) {
-                    unlink($current_path);
-
-                    if (file_exists($destination_path)) {
-                        $result = true;
+                // Exclusive creation prevents a concurrent request replacing media.
+                $source = @fopen($current_path, 'rb');
+                $destination = $source ? @fopen($destination_path, 'xb') : false;
+                if ($source && $destination) {
+                    $expected_size = fstat($source)['size'];
+                    $copied_size = stream_copy_to_stream($source, $destination);
+                    fclose($destination);
+                    if ($copied_size !== false && $copied_size === $expected_size) {
+                        $result = @unlink($current_path);
                     }
+                    if (!$result) {
+                        @unlink($destination_path);
+                    }
+                }
+                if ($source) {
+                    fclose($source);
                 }
             }
         }
@@ -570,13 +672,22 @@ class GFMUHandlePluploader
             $attachment_id = 0;
 
             $file_name = sanitize_file_name($_POST["{$file_uid}_tname"]);
+            $upload_token = sanitize_text_field(wp_unslash($_POST["{$file_uid}_token"] ?? ''));
 
-            $path = $uplo_dir['basedir'] . '/' . self::$upload_tmp_dir_name . '/' . esc_attr($file_name);
+            $path = $uplo_dir['basedir'] . '/' . self::$upload_tmp_dir_name . '/' . $file_name;
 
-            $img_thumb_url = $uplo_dir['baseurl'] . '/' . self::$upload_tmp_dir_name . '/' . esc_attr($file_name);
+            $img_thumb_url = $uplo_dir['baseurl'] . '/' . self::$upload_tmp_dir_name . '/' . rawurlencode($file_name);
             $preview_url = $img_thumb_url;
 
+            if (file_exists($path) && !$this->owns_staged_file($file_name, $upload_token, 0, absint($field_id))) {
+                continue;
+            }
+
             if (!file_exists($path) and $db_search) {
+
+                if (!ctype_digit($file_name) || !$this->current_user_can_download_attachment(absint($file_name))) {
+                    continue;
+                }
 
                 $attachment = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->posts} WHERE ID = %d", array($file_name)));
 
@@ -602,6 +713,7 @@ class GFMUHandlePluploader
                 'id'            => $file_uid,
                 'o_name'        => sanitize_file_name($_POST["{$file_uid}_name"]),
                 't_name'        => $file_name,
+                'upload_token'  => $upload_token,
                 'url'           => $img_thumb_url,
                 'preview_url'   => $preview_url,
                 'size'          => $path ? self::filesize($path) : 0,
@@ -631,7 +743,7 @@ class GFMUHandlePluploader
 
         $post_id = $args['post_id'];
 
-        if (!$post_id) {
+        if (!$post_id || !$this->current_user_can_access_media_post(absint($post_id))) {
             return [];
         }
 
@@ -664,6 +776,10 @@ class GFMUHandlePluploader
 
         $file_upload_number = 0;
         foreach ($images as $image) {
+
+            if (!$this->current_user_can_download_attachment(absint($image->ID), absint($post_id))) {
+                continue;
+            }
 
             $img_thumb_url = wp_get_attachment_image_src($image->ID, 'thumbnail');
             $preview_url = wp_get_attachment_url($image->ID);
@@ -720,6 +836,7 @@ class GFMUHandlePluploader
         return [
             'id'     => $file_uid,
             't_name' => sanitize_file_name($_POST["{$file_uid}_tname"]),
+            'upload_token' => sanitize_text_field(wp_unslash($_POST["{$file_uid}_token"] ?? '')),
             'o_name' => sanitize_file_name($_POST["{$file_uid}_name"])
         ];
     }

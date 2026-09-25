@@ -19,9 +19,6 @@ class GFMUPluginSetup
 
         self::load_textdomain();
 
-        //Set Activation/Deactivation hooks
-        register_activation_hook(__FILE__, array('GFMUPluginSetup', 'plugin_activation'));
-        register_deactivation_hook(__FILE__, array('GFMUPluginSetup', 'plugin_deactivation'));
     }
 
     public static function boot()
@@ -40,7 +37,7 @@ class GFMUPluginSetup
 
         $mo_file = "gf-multi-uploader-{$locale}.mo";
 
-        if (load_textdomain('gf-multi-uploader', WP_LANG_DIR . '/plugins/gf-multi-uploader/' . $mo_file))
+        if (load_textdomain('gf-multi-uploader', WP_LANG_DIR . '/plugins/' . $mo_file))
             return true;
 
         return load_textdomain('gf-multi-uploader', GFMU_PLUGIN_DIR . 'languages/' . $mo_file);

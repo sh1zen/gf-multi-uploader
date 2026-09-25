@@ -9,14 +9,16 @@
  * Plugin Name: Multi Uploader for Gravity Forms
  * Plugin URI: https://github.com/sh1zen/gf-multi-uploader
  * Description: Multiple file uploader and editor with advanced options for Gravity Forms plugin.
- * Version: 1.1.9
+ * Version: 1.1.10
  * Author: sh1zen
  * Author URI: https://sh1zen.github.io/
- * Text Domain: gfmu-locale
+ * Text Domain: gf-multi-uploader
  * Domain Path: /languages
+ * License: GPLv2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  */
 
-const GF_MULTI_UPLOADER_VERSION = '1.1.9';
+const GF_MULTI_UPLOADER_VERSION = '1.1.10';
 
 define('GFMU_PLUGIN_DIR', dirname(__FILE__) . '/');
 define('GFMU_PLUGIN_URL', plugin_dir_url(__FILE__));

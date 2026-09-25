@@ -88,7 +88,8 @@ function downloadFromAjaxPost_XHR(url, params, headers) {
         });
 
         function gform_plupload_field(id, name, value, fieldId) {
-            return '<input type="hidden" name="' + name + '_tname" value="' + value + '" data-gfmu-field="' + fieldId + '" data-gfmu-role="tname" data-gfmu-upload-id="' + id + '"/>';
+            return $('<input>', {type: 'hidden', name: name + '_tname', value: value})
+                .attr({'data-gfmu-field': fieldId, 'data-gfmu-role': 'tname', 'data-gfmu-upload-id': id});
         }
 
         function escapeSelector(value) {
@@ -108,6 +109,9 @@ function downloadFromAjaxPost_XHR(url, params, headers) {
 
             $('input').filter(function () {
                 return this.name === fieldName;
+            }).remove();
+            $('input').filter(function () {
+                return this.name === file.id + '_token';
             }).remove();
         }
 
@@ -269,6 +273,7 @@ function downloadFromAjaxPost_XHR(url, params, headers) {
                 id: file.id,
                 o_name: file.name,
                 t_name: file.target_name,
+                upload_token: file.upload_token || '',
                 size: file.size || file.origSize || 0,
                 url: file.url || getTempFileUrl(option, file.target_name),
                 preview_url: file.preview_url || file.url || getTempFileUrl(option, file.target_name),
@@ -378,7 +383,7 @@ function downloadFromAjaxPost_XHR(url, params, headers) {
                 return;
             }
 
-            form.find('input[data-gfmu-field="' + option.params.field_id + '"][data-gfmu-role="tname"]').remove();
+            form.find('input[data-gfmu-field="' + option.params.field_id + '"][data-gfmu-role]').remove();
 
             $('.plupload_file_fields', $('#' + escapeSelector(option.element + '_container'))).html('');
 
@@ -394,13 +399,14 @@ function downloadFromAjaxPost_XHR(url, params, headers) {
                     return;
                 }
 
-                row.find('.plupload_file_fields').html(
-                    '<input type="hidden" name="' + fieldName + '[]" value="' + file.id + '" />' +
-                    '<input type="hidden" name="' + file.id + '_name" value="' + $('<div>').text(file.name).html() + '" />'
-                );
+                let fields = row.find('.plupload_file_fields').empty();
+                $('<input>', {type: 'hidden', name: fieldName + '[]', value: file.id}).appendTo(fields);
+                $('<input>', {type: 'hidden', name: file.id + '_name', value: file.name}).appendTo(fields);
 
                 if (file.target_name) {
                     form.append(gform_plupload_field(file.id, file.id, file.target_name, option.params.field_id));
+                    form.append($('<input>', {type: 'hidden', name: file.id + '_token', value: file.upload_token || ''})
+                        .attr({'data-gfmu-field': option.params.field_id, 'data-gfmu-role': 'token'}));
                 }
             });
         }
@@ -461,6 +467,7 @@ function downloadFromAjaxPost_XHR(url, params, headers) {
                     nonce: option.params.upload_nonce,
                     file_id: file.id,
                     tmp_name: file.target_name
+                    ,upload_token: file.upload_token || ''
                 };
             } else {
                 removeHiddenField(file);
@@ -564,6 +571,7 @@ function downloadFromAjaxPost_XHR(url, params, headers) {
                                     file = new plupload.File({'name': name});
                                     file.id = value.id;
                                     file.target_name = value.t_name;
+                                    file.upload_token = value.upload_token || '';
                                     file.percent = 100;
                                     file.status = plupload.DONE;
                                     file.size = file_size;
@@ -603,6 +611,7 @@ function downloadFromAjaxPost_XHR(url, params, headers) {
                                 });
                             } else if (obj.result === 'success') {
                                 file.target_name = obj.success.file_id;
+                                file.upload_token = obj.success.upload_token || '';
                                 file.wpid = 0;
                                 file.url = getTempFileUrl(option, obj.success.file_id);
                                 file.preview_url = file.url;
@@ -619,6 +628,23 @@ function downloadFromAjaxPost_XHR(url, params, headers) {
                                     file: file
                                 });
                             }
+                        },
+                        BeforeUpload: function (up, file) {
+                            if (!file.gfmu_upload_id) {
+                                if (!window.crypto || !window.crypto.getRandomValues) {
+                                    up.stop();
+                                    up.trigger('Error', {message: option.i18n.server_error, file: file});
+                                    return false;
+                                }
+                                let random = new Uint8Array(16);
+                                window.crypto.getRandomValues(random);
+                                file.gfmu_upload_id = Array.prototype.map.call(random, function (byte) {
+                                    return ('0' + byte.toString(16)).slice(-2);
+                                }).join('');
+                            }
+                            up.setOption('multipart_params', $.extend({}, up.getOption('multipart_params'), {
+                                upload_id: file.gfmu_upload_id
+                            }));
                         },
                         FilesAdded: function (up, selectedFiles) {
 

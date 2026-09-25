@@ -123,7 +123,7 @@ class GF_MultiUploader_Field extends GF_Field
         $input .= "<div class='ginput_container mth_plupload'><input name='input_{$field_id}' id='mth_form_pluploader_{$field_id}' type='hidden'/></div>";
 
         $args = [
-            'post_id'     => $_GET['gform_post_id'] ?? 0,
+            'post_id'     => isset($_GET['gform_post_id']) ? absint(wp_unslash($_GET['gform_post_id'])) : 0,
             'get_by_meta' => $this->gfmu_save_to_meta
         ];
 
@@ -132,7 +132,7 @@ class GF_MultiUploader_Field extends GF_Field
         $input .= $this->generate_pluploader_field_script($uploaded_data);
 
         //Cache the div element used by pluploader jquery plugin
-        $input .= "<div id='filelist_{$field_id}'>" . __("Your browser doesn't have Flash, Silverlight or HTML5 support.", 'gfmu-locale') . "</div>";
+        $input .= "<div id='filelist_{$field_id}'>" . __("Your browser doesn't have Flash, Silverlight or HTML5 support.", 'gf-multi-uploader') . "</div>";
 
         $input .= "<div id='pluploader_{$field_id}'></div>";
 
@@ -151,7 +151,7 @@ class GF_MultiUploader_Field extends GF_Field
         if (empty($field_options))
             return '';
 
-        return "<script>if(typeof GFMU_options === 'undefined' ) {var GFMU_options = {}} GFMU_options['{$field_id}'] = " . wp_json_encode($field_options) . ";</script>";
+        return "<script>if(typeof GFMU_options === 'undefined' ) {var GFMU_options = {}} GFMU_options['{$field_id}'] = " . wp_json_encode($field_options, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . ";</script>";
     }
 
     public function get_gfmu_field_settings($form = null)
@@ -233,6 +233,7 @@ class GF_MultiUploader_Field extends GF_Field
                         echo "'id': '" . esc_attr($file_data['id']) . "',";
                         echo "'o_name': '" . esc_attr($file_data['o_name']) . "',";
                         echo "'t_name': '" . esc_attr($file_data['t_name']) . "',";
+                        echo "'upload_token': '" . esc_js($file_data['upload_token'] ?? '') . "',";
                         echo "'size': '" . esc_js($file_data['size']) . "',";
                         echo "'url': '" . esc_url($file_data['url']) . "',";
                         echo "'preview_url': '" . esc_url($file_data['preview_url'] ?? $file_data['url']) . "',";
@@ -270,17 +271,19 @@ class GF_MultiUploader_Field extends GF_Field
         return true;
     }
 
-    /**
-     * Sanitize and format the value before it is saved to the Entry Object.
-     *
-     * @param string|array $value The value to be saved.
-     * @param array $form The Form Object currently being processed.
-     * @param string $input_name The input name used when accessing the $_POST.
-     * @param int $lead_id The ID of the Entry currently being processed.
-     * @param array $lead The Entry Object currently being processed.
-     *
-     * @return array|string The safe value.
-     */
+    /** Reject submissions that exceed this field's configured file count. */
+    public function validate($value, $form)
+    {
+        parent::validate($value, $form);
+        $settings = $this->get_gfmu_field_settings($form);
+        $max_files = absint($settings['max_files']);
+        if ($max_files && count((array)$value) > $max_files) {
+            $this->failed_validation = true;
+            $this->validation_message = __('Too many files were submitted.', 'gf-multi-uploader');
+        }
+    }
+
+    /** Sanitize and attach submitted files before saving the entry value. */
     public function get_value_save_entry($value, $form, $input_name, $lead_id, $lead)
     {
         //trick to fix the two call in a row
@@ -288,6 +291,12 @@ class GF_MultiUploader_Field extends GF_Field
             return $value;
 
         $form_id = absint($this->formId);
+
+        $field_settings = $this->get_gfmu_field_settings($form);
+        $max_files = absint($field_settings['max_files']);
+        if ($max_files && count((array)$value) > $max_files) {
+            return maybe_serialize([]);
+        }
 
         $entries = [];
 
@@ -300,6 +309,8 @@ class GF_MultiUploader_Field extends GF_Field
 
             $attachment_id = GFMUHandlePluploader::getInstance()->maybe_insert_attachment([
                 'form_id'  => $form_id,
+                'field_id' => absint($this->id),
+                'upload_token' => $upload['upload_token'],
                 'entry_id' => $lead_id,
                 'basename' => $upload['t_name'],
                 'order'    => $index,
@@ -342,7 +353,7 @@ class GF_MultiUploader_Field extends GF_Field
         if (!is_array($fields))
             $fields = [];
 
-        return sprintf(__("%s uploads", "gfmu-locale"), count($fields));
+        return sprintf(__("%s uploads", "gf-multi-uploader"), count($fields));
     }
 
     /**
@@ -366,7 +377,7 @@ class GF_MultiUploader_Field extends GF_Field
 
         $str = '';
         foreach ($value as $upload) {
-            $str .= "<li><a href='{$upload['url']}' target='_blank'>{$upload['o_name']}</a></li>";
+            $str .= "<li><a href='" . esc_url($upload['url']) . "' target='_blank' rel='noopener noreferrer'>" . esc_html($upload['o_name']) . "</a></li>";
         }
 
         return "<ul>{$str}</ul>";

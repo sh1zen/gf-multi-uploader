@@ -54,6 +54,8 @@ class GFMUAddon extends GFAddOn
     {
         global $wpdb;
 
+        $post_id = absint($post_id);
+
         $fields = GFAPI::get_fields_by_type($form, array('multi-uploader'));
         $save_to_meta = [];
 
@@ -75,8 +77,9 @@ class GFMUAddon extends GFAddOn
                 } else {
                     $attachment_id = $wpdb->get_var(
                         $wpdb->prepare(
-                            "SELECT ID FROM {$wpdb->posts} WHERE guid LIKE '%s' AND post_type = 'attachment' AND post_parent = '{$post_id}';",
-                            '%' . $wpdb->esc_like($media['t_name']) . '%'
+                            "SELECT ID FROM {$wpdb->posts} WHERE guid LIKE %s AND post_type = 'attachment' AND post_parent = %d;",
+                            '%' . $wpdb->esc_like($media['t_name']) . '%',
+                            $post_id
                         )
                     );
                 }
@@ -89,7 +92,7 @@ class GFMUAddon extends GFAddOn
                     $save_to_meta[] = $attachment_id;
                 } else {
                     wp_update_post(array('ID' => $attachment_id, 'post_parent' => $post_id));
-                    $wpdb->query("UPDATE {$wpdb->posts} SET menu_order = {$file_upload_number} WHERE ID = {$attachment_id};");
+                    $wpdb->update($wpdb->posts, array('menu_order' => absint($file_upload_number)), array('ID' => absint($attachment_id)), array('%d'), array('%d'));
                 }
             }
 
@@ -183,8 +186,8 @@ class GFMUAddon extends GFAddOn
     public function get_default_style_settings(): array
     {
         return array(
-            'header_title'       => esc_html__('Select files', 'gfmu-locale'),
-            'header_text'        => esc_html__('Add files to the upload queue and click the start button.', 'gfmu-locale'),
+            'header_title'       => esc_html__('Select files', 'gf-multi-uploader'),
+            'header_text'        => esc_html__('Add files to the upload queue and click the start button.', 'gf-multi-uploader'),
             'primary_color'      => '#1e7a3a',
             'primary_text_color' => '#ffffff',
             'surface_color'      => '#f4faf4',
@@ -251,7 +254,7 @@ class GFMUAddon extends GFAddOn
 
     public function form_settings_page_title()
     {
-        return esc_html__('Multi Uploader Defaults', 'gfmu-locale');
+        return esc_html__('Multi Uploader Defaults', 'gf-multi-uploader');
     }
 
     public function form_settings_fields($form): array
@@ -260,111 +263,111 @@ class GFMUAddon extends GFAddOn
 
         return array(
             array(
-                'title'       => esc_html__('Uploader defaults for this form', 'gfmu-locale'),
-                'description' => esc_html__('These values apply to Multi Uploader fields in the current form unless a field overrides them in the editor.', 'gfmu-locale'),
+                'title'       => esc_html__('Uploader defaults for this form', 'gf-multi-uploader'),
+                'description' => esc_html__('These values apply to Multi Uploader fields in the current form unless a field overrides them in the editor.', 'gf-multi-uploader'),
                 'fields'      => array(
                     array(
-                        'label'   => esc_html__('Auto upload', 'gfmu-locale'),
+                        'label'   => esc_html__('Auto upload', 'gf-multi-uploader'),
                         'type'    => 'checkbox',
                         'name'    => 'auto_upload',
                         'choices' => array(
                             array(
-                                'label' => esc_html__('Upload files immediately after selection', 'gfmu-locale'),
+                                'label' => esc_html__('Upload files immediately after selection', 'gf-multi-uploader'),
                                 'name'  => 'auto_upload',
                             ),
                         ),
                     ),
                     array(
-                        'label'   => esc_html__('Detect duplicates', 'gfmu-locale'),
+                        'label'   => esc_html__('Detect duplicates', 'gf-multi-uploader'),
                         'type'    => 'checkbox',
                         'name'    => 'duplicates_status',
                         'choices' => array(
                             array(
-                                'label' => esc_html__('Prevent duplicate uploads', 'gfmu-locale'),
+                                'label' => esc_html__('Prevent duplicate uploads', 'gf-multi-uploader'),
                                 'name'  => 'duplicates_status',
                             ),
                         ),
                     ),
                     array(
-                        'label'   => esc_html__('Enable drag and drop', 'gfmu-locale'),
+                        'label'   => esc_html__('Enable drag and drop', 'gf-multi-uploader'),
                         'type'    => 'checkbox',
                         'name'    => 'drag_drop_status',
                         'choices' => array(
                             array(
-                                'label' => esc_html__('Allow drag and drop area', 'gfmu-locale'),
+                                'label' => esc_html__('Allow drag and drop area', 'gf-multi-uploader'),
                                 'name'  => 'drag_drop_status',
                             ),
                         ),
                     ),
                     array(
-                        'label'   => esc_html__('Rename uploaded files', 'gfmu-locale'),
+                        'label'   => esc_html__('Rename uploaded files', 'gf-multi-uploader'),
                         'type'    => 'checkbox',
                         'name'    => 'rename_file_status',
                         'choices' => array(
                             array(
-                                'label' => esc_html__('Use generated target names for uploads', 'gfmu-locale'),
+                                'label' => esc_html__('Use generated target names for uploads', 'gf-multi-uploader'),
                                 'name'  => 'rename_file_status',
                             ),
                         ),
                     ),
                     array(
-                        'label'   => esc_html__('Available view types', 'gfmu-locale'),
+                        'label'   => esc_html__('Available view types', 'gf-multi-uploader'),
                         'type'    => 'checkbox',
                         'name'    => 'gfmu_views',
                         'choices' => array(
                             array(
-                                'label' => esc_html__('List view', 'gfmu-locale'),
+                                'label' => esc_html__('List view', 'gf-multi-uploader'),
                                 'name'  => 'list_view',
                             ),
                             array(
-                                'label' => esc_html__('Thumbnail view', 'gfmu-locale'),
+                                'label' => esc_html__('Thumbnail view', 'gf-multi-uploader'),
                                 'name'  => 'thumb_view',
                             ),
                         ),
                     ),
                     array(
-                        'label'   => esc_html__('Default view', 'gfmu-locale'),
+                        'label'   => esc_html__('Default view', 'gf-multi-uploader'),
                         'type'    => 'radio',
                         'name'    => 'ui_view',
                         'choices' => array(
                             array(
-                                'label' => esc_html__('Thumbnail view', 'gfmu-locale'),
+                                'label' => esc_html__('Thumbnail view', 'gf-multi-uploader'),
                                 'name'  => 'thumbs',
                                 'value' => 'thumbs',
                             ),
                             array(
-                                'label' => esc_html__('List view', 'gfmu-locale'),
+                                'label' => esc_html__('List view', 'gf-multi-uploader'),
                                 'name'  => 'list',
                                 'value' => 'list',
                             ),
                         ),
                     ),
                     array(
-                        'label' => esc_html__('Maximum number of files', 'gfmu-locale'),
+                        'label' => esc_html__('Maximum number of files', 'gf-multi-uploader'),
                         'type'  => 'text',
                         'name'  => 'max_files',
                         'class' => 'small',
                         'value' => (string)$settings['max_files'],
                     ),
                     array(
-                        'label'       => esc_html__('Maximum file size', 'gfmu-locale'),
-                        'description' => esc_html__('Allowed units: KB, MB, GB. Example: 10mb', 'gfmu-locale'),
+                        'label'       => esc_html__('Maximum file size', 'gf-multi-uploader'),
+                        'description' => esc_html__('Allowed units: KB, MB, GB. Example: 10mb', 'gf-multi-uploader'),
                         'type'        => 'text',
                         'name'        => 'max_file_size',
                         'class'       => 'small',
                         'value'       => $settings['max_file_size'],
                     ),
                     array(
-                        'label'       => esc_html__('Chunk size', 'gfmu-locale'),
-                        'description' => esc_html__('Chunk size used by Plupload. Example: 2mb', 'gfmu-locale'),
+                        'label'       => esc_html__('Chunk size', 'gf-multi-uploader'),
+                        'description' => esc_html__('Chunk size used by Plupload. Example: 2mb', 'gf-multi-uploader'),
                         'type'        => 'text',
                         'name'        => 'chunk_size',
                         'class'       => 'small',
                         'value'       => $settings['chunk_size'],
                     ),
                     array(
-                        'label'       => esc_html__('Allowed extensions', 'gfmu-locale'),
-                        'description' => esc_html__('Comma separated list, for example: jpg,jpeg,png,webp,pdf', 'gfmu-locale'),
+                        'label'       => esc_html__('Allowed extensions', 'gf-multi-uploader'),
+                        'description' => esc_html__('Comma separated list, for example: jpg,jpeg,png,webp,pdf', 'gf-multi-uploader'),
                         'type'        => 'text',
                         'name'        => 'files_filters',
                         'class'       => 'medium',
@@ -400,7 +403,7 @@ class GFMUAddon extends GFAddOn
     public function plugin_settings()
     {
         if (!GFCommon::current_user_can_any('gravityforms_edit_settings')) {
-            wp_die(esc_html__('You do not have permission to access this page.', 'gfmu-locale'));
+            wp_die(esc_html__('You do not have permission to access this page.', 'gf-multi-uploader'));
         }
 
         $style_settings = $this->get_global_style_settings();
@@ -432,27 +435,27 @@ class GFMUAddon extends GFAddOn
         <div class="wrap gfmu-admin-page">
             <div class="gfmu-admin-hero">
                 <div class="gfmu-admin-hero__content">
-                    <span class="gfmu-admin-kicker"><?php esc_html_e('Gravity Forms add-on', 'gfmu-locale'); ?></span>
-                    <h1><?php esc_html_e('Multi Uploader Style', 'gfmu-locale'); ?></h1>
+                    <span class="gfmu-admin-kicker"><?php esc_html_e('Gravity Forms add-on', 'gf-multi-uploader'); ?></span>
+                    <h1><?php esc_html_e('Multi Uploader Style', 'gf-multi-uploader'); ?></h1>
                     <p class="gfmu-admin-intro">
-                        <?php esc_html_e('Set the global visual language of the uploader. Behaviour defaults stay inside each form settings page, while this screen controls the shared look and feel.', 'gfmu-locale'); ?>
+                        <?php esc_html_e('Set the global visual language of the uploader. Behaviour defaults stay inside each form settings page, while this screen controls the shared look and feel.', 'gf-multi-uploader'); ?>
                     </p>
                 </div>
                 <div class="gfmu-admin-hero__meta">
-                    <span class="gfmu-admin-pill"><?php esc_html_e('Global style', 'gfmu-locale'); ?></span>
-                    <span class="gfmu-admin-pill gfmu-admin-pill--ghost"><?php esc_html_e('Live preview', 'gfmu-locale'); ?></span>
+                    <span class="gfmu-admin-pill"><?php esc_html_e('Global style', 'gf-multi-uploader'); ?></span>
+                    <span class="gfmu-admin-pill gfmu-admin-pill--ghost"><?php esc_html_e('Live preview', 'gf-multi-uploader'); ?></span>
                 </div>
             </div>
 
             <?php if ($is_saved) : ?>
                 <div class="notice notice-success is-dismissible gfmu-admin-notice">
-                    <p><?php esc_html_e('Style settings saved.', 'gfmu-locale'); ?></p>
+                    <p><?php esc_html_e('Style settings saved.', 'gf-multi-uploader'); ?></p>
                 </div>
             <?php endif; ?>
 
             <?php if ($is_reset) : ?>
                 <div class="notice notice-warning is-dismissible gfmu-admin-notice">
-                    <p><?php esc_html_e('Custom style reset to default values.', 'gfmu-locale'); ?></p>
+                    <p><?php esc_html_e('Custom style reset to default values.', 'gf-multi-uploader'); ?></p>
                 </div>
             <?php endif; ?>
 
@@ -463,19 +466,19 @@ class GFMUAddon extends GFAddOn
                     <div class="gfmu-admin-config">
                         <section class="gfmu-admin-section">
                             <div class="gfmu-admin-section__header">
-                                <h2><?php esc_html_e('Header copy', 'gfmu-locale'); ?></h2>
-                                <p><?php esc_html_e('Text shown at the top of every uploader instance.', 'gfmu-locale'); ?></p>
+                                <h2><?php esc_html_e('Header copy', 'gf-multi-uploader'); ?></h2>
+                                <p><?php esc_html_e('Text shown at the top of every uploader instance.', 'gf-multi-uploader'); ?></p>
                             </div>
                             <div class="gfmu-admin-grid gfmu-admin-grid--copy">
                                 <label class="gfmu-admin-field gfmu-admin-field--filled">
-                                    <span><?php esc_html_e('Header title', 'gfmu-locale'); ?></span>
-                                    <small><?php esc_html_e('Short and prominent label.', 'gfmu-locale'); ?></small>
+                                    <span><?php esc_html_e('Header title', 'gf-multi-uploader'); ?></span>
+                                    <small><?php esc_html_e('Short and prominent label.', 'gf-multi-uploader'); ?></small>
                                     <input type="text" name="gfmu_style[header_title]" value="<?php echo esc_attr($style_settings['header_title']); ?>" class="regular-text">
                                 </label>
 
                                 <label class="gfmu-admin-field gfmu-admin-field--filled">
-                                    <span><?php esc_html_e('Header text', 'gfmu-locale'); ?></span>
-                                    <small><?php esc_html_e('Secondary helper text below the title.', 'gfmu-locale'); ?></small>
+                                    <span><?php esc_html_e('Header text', 'gf-multi-uploader'); ?></span>
+                                    <small><?php esc_html_e('Secondary helper text below the title.', 'gf-multi-uploader'); ?></small>
                                     <textarea name="gfmu_style[header_text]" rows="4" class="large-text"><?php echo esc_textarea($style_settings['header_text']); ?></textarea>
                                 </label>
                             </div>
@@ -483,13 +486,13 @@ class GFMUAddon extends GFAddOn
 
                         <section class="gfmu-admin-section">
                             <div class="gfmu-admin-section__header">
-                                <h2><?php esc_html_e('Theme palette', 'gfmu-locale'); ?></h2>
-                                <p><?php esc_html_e('Adjust the main accent, surface and border colors used across the component.', 'gfmu-locale'); ?></p>
+                                <h2><?php esc_html_e('Theme palette', 'gf-multi-uploader'); ?></h2>
+                                <p><?php esc_html_e('Adjust the main accent, surface and border colors used across the component.', 'gf-multi-uploader'); ?></p>
                             </div>
                             <div class="gfmu-admin-grid gfmu-admin-grid--colors">
                                 <label class="gfmu-admin-field gfmu-admin-field--color">
-                                    <span><?php esc_html_e('Primary color', 'gfmu-locale'); ?></span>
-                                    <small><?php esc_html_e('Buttons and active states.', 'gfmu-locale'); ?></small>
+                                    <span><?php esc_html_e('Primary color', 'gf-multi-uploader'); ?></span>
+                                    <small><?php esc_html_e('Buttons and active states.', 'gf-multi-uploader'); ?></small>
                                     <span class="gfmu-admin-color-control">
                                         <span class="gfmu-admin-color-swatch" style="background-color: <?php echo esc_attr($style_settings['primary_color']); ?>;"></span>
                                         <input type="color" name="gfmu_style[primary_color]" value="<?php echo esc_attr($style_settings['primary_color']); ?>">
@@ -498,8 +501,8 @@ class GFMUAddon extends GFAddOn
                                 </label>
 
                                 <label class="gfmu-admin-field gfmu-admin-field--color">
-                                    <span><?php esc_html_e('Primary text color', 'gfmu-locale'); ?></span>
-                                    <small><?php esc_html_e('Text shown on primary actions.', 'gfmu-locale'); ?></small>
+                                    <span><?php esc_html_e('Primary text color', 'gf-multi-uploader'); ?></span>
+                                    <small><?php esc_html_e('Text shown on primary actions.', 'gf-multi-uploader'); ?></small>
                                     <span class="gfmu-admin-color-control">
                                         <span class="gfmu-admin-color-swatch" style="background-color: <?php echo esc_attr($style_settings['primary_text_color']); ?>;"></span>
                                         <input type="color" name="gfmu_style[primary_text_color]" value="<?php echo esc_attr($style_settings['primary_text_color']); ?>">
@@ -508,8 +511,8 @@ class GFMUAddon extends GFAddOn
                                 </label>
 
                                 <label class="gfmu-admin-field gfmu-admin-field--color">
-                                    <span><?php esc_html_e('Surface color', 'gfmu-locale'); ?></span>
-                                    <small><?php esc_html_e('Panel backgrounds and soft areas.', 'gfmu-locale'); ?></small>
+                                    <span><?php esc_html_e('Surface color', 'gf-multi-uploader'); ?></span>
+                                    <small><?php esc_html_e('Panel backgrounds and soft areas.', 'gf-multi-uploader'); ?></small>
                                     <span class="gfmu-admin-color-control">
                                         <span class="gfmu-admin-color-swatch" style="background-color: <?php echo esc_attr($style_settings['surface_color']); ?>;"></span>
                                         <input type="color" name="gfmu_style[surface_color]" value="<?php echo esc_attr($style_settings['surface_color']); ?>">
@@ -518,8 +521,8 @@ class GFMUAddon extends GFAddOn
                                 </label>
 
                                 <label class="gfmu-admin-field gfmu-admin-field--color">
-                                    <span><?php esc_html_e('Border color', 'gfmu-locale'); ?></span>
-                                    <small><?php esc_html_e('Lines, frames and separators.', 'gfmu-locale'); ?></small>
+                                    <span><?php esc_html_e('Border color', 'gf-multi-uploader'); ?></span>
+                                    <small><?php esc_html_e('Lines, frames and separators.', 'gf-multi-uploader'); ?></small>
                                     <span class="gfmu-admin-color-control">
                                         <span class="gfmu-admin-color-swatch" style="background-color: <?php echo esc_attr($style_settings['border_color']); ?>;"></span>
                                         <input type="color" name="gfmu_style[border_color]" value="<?php echo esc_attr($style_settings['border_color']); ?>">
@@ -531,19 +534,19 @@ class GFMUAddon extends GFAddOn
 
                         <section class="gfmu-admin-section">
                             <div class="gfmu-admin-section__header">
-                                <h2><?php esc_html_e('Frame', 'gfmu-locale'); ?></h2>
-                                <p><?php esc_html_e('Tune the overall softness and vertical presence of the component.', 'gfmu-locale'); ?></p>
+                                <h2><?php esc_html_e('Frame', 'gf-multi-uploader'); ?></h2>
+                                <p><?php esc_html_e('Tune the overall softness and vertical presence of the component.', 'gf-multi-uploader'); ?></p>
                             </div>
                             <div class="gfmu-admin-grid gfmu-admin-grid--metrics">
                                 <label class="gfmu-admin-field gfmu-admin-field--filled">
-                                    <span><?php esc_html_e('Border radius (px)', 'gfmu-locale'); ?></span>
-                                    <small><?php esc_html_e('Corner roundness for the uploader shell.', 'gfmu-locale'); ?></small>
+                                    <span><?php esc_html_e('Border radius (px)', 'gf-multi-uploader'); ?></span>
+                                    <small><?php esc_html_e('Corner roundness for the uploader shell.', 'gf-multi-uploader'); ?></small>
                                     <input type="number" min="0" max="40" name="gfmu_style[border_radius]" value="<?php echo esc_attr((string)$style_settings['border_radius']); ?>" class="small-text">
                                 </label>
 
                                 <label class="gfmu-admin-field gfmu-admin-field--filled">
-                                    <span><?php esc_html_e('Minimum panel height (px)', 'gfmu-locale'); ?></span>
-                                    <small><?php esc_html_e('Default vertical size before content grows.', 'gfmu-locale'); ?></small>
+                                    <span><?php esc_html_e('Minimum panel height (px)', 'gf-multi-uploader'); ?></span>
+                                    <small><?php esc_html_e('Default vertical size before content grows.', 'gf-multi-uploader'); ?></small>
                                     <input type="number" min="320" max="960" step="10" name="gfmu_style[panel_min_height]" value="<?php echo esc_attr((string)$style_settings['panel_min_height']); ?>" class="small-text">
                                 </label>
                             </div>
@@ -553,9 +556,9 @@ class GFMUAddon extends GFAddOn
                     <aside class="gfmu-admin-sidebar">
                         <div class="gfmu-admin-preview-shell">
                             <div class="gfmu-admin-preview-head">
-                                <span class="gfmu-admin-preview-tag"><?php esc_html_e('Live preview', 'gfmu-locale'); ?></span>
-                                <strong><?php esc_html_e('Uploader appearance', 'gfmu-locale'); ?></strong>
-                                <p><?php esc_html_e('This preview reflects the styling saved for all instances.', 'gfmu-locale'); ?></p>
+                                <span class="gfmu-admin-preview-tag"><?php esc_html_e('Live preview', 'gf-multi-uploader'); ?></span>
+                                <strong><?php esc_html_e('Uploader appearance', 'gf-multi-uploader'); ?></strong>
+                                <p><?php esc_html_e('This preview reflects the styling saved for all instances.', 'gf-multi-uploader'); ?></p>
                             </div>
 
                             <div class="gfmu-admin-preview" style="
@@ -577,14 +580,14 @@ class GFMUAddon extends GFAddOn
                                     </div>
                                     <div class="gfmu-admin-preview-body">
                                         <div class="gfmu-admin-preview-dropzone">
-                                            <span><?php esc_html_e('Drop area preview', 'gfmu-locale'); ?></span>
-                                            <small><?php esc_html_e('Files, thumbnails and states inherit this theme.', 'gfmu-locale'); ?></small>
+                                            <span><?php esc_html_e('Drop area preview', 'gf-multi-uploader'); ?></span>
+                                            <small><?php esc_html_e('Files, thumbnails and states inherit this theme.', 'gf-multi-uploader'); ?></small>
                                         </div>
                                     </div>
                                     <div class="gfmu-admin-preview-footer">
                                         <div class="gfmu-admin-preview-actions">
-                                            <button type="button" class="button button-primary"><?php esc_html_e('Add files', 'gfmu-locale'); ?></button>
-                                            <button type="button" class="button"><?php esc_html_e('Start upload', 'gfmu-locale'); ?></button>
+                                            <button type="button" class="button button-primary"><?php esc_html_e('Add files', 'gf-multi-uploader'); ?></button>
+                                            <button type="button" class="button"><?php esc_html_e('Start upload', 'gf-multi-uploader'); ?></button>
                                         </div>
                                         <div class="gfmu-admin-preview-status">
                                             <span>0%</span>
@@ -599,16 +602,16 @@ class GFMUAddon extends GFAddOn
 
                 <div class="submit gfmu-admin-actions">
                     <button type="submit" name="gfmu_style_action" value="save" class="button button-primary">
-                        <?php esc_html_e('Save style', 'gfmu-locale'); ?>
+                        <?php esc_html_e('Save style', 'gf-multi-uploader'); ?>
                     </button>
                     <button
                         type="submit"
                         name="gfmu_style_action"
                         value="reset"
                         class="button button-secondary gfmu-admin-reset"
-                        onclick="return window.confirm('<?php echo esc_js(__('Reset the custom style and restore the default look?', 'gfmu-locale')); ?>');"
+                        onclick="return window.confirm('<?php echo esc_js(__('Reset the custom style and restore the default look?', 'gf-multi-uploader')); ?>');"
                     >
-                        <?php esc_html_e('Reset custom style', 'gfmu-locale'); ?>
+                        <?php esc_html_e('Reset custom style', 'gf-multi-uploader'); ?>
                     </button>
                 </div>
             </form>
@@ -618,10 +621,10 @@ class GFMUAddon extends GFAddOn
 
     public function tooltips(array $tooltips): array
     {
-        $tooltips['gfmu_save_to_meta'] = sprintf('<h6>%s</h6>%s', esc_html__('Save to meta', 'gfmu-locale'), esc_html__('If it is set, will save all the data about uploads into the specified meta.', 'gfmu-locale'));
-        $tooltips['gfmu_max_files'] = sprintf('<h6>%s</h6>%s', esc_html__('Max number of files', 'gfmu-locale'), esc_html__('Specify the max number of files the user can upload.', 'gfmu-locale'));
-        $tooltips['gfmu_file_size'] = sprintf('<h6>%s</h6>%s', esc_html__('Max file size', 'gfmu-locale'), esc_html__('Specify the max size for each file uploaded.', 'gfmu-locale'));
-        $tooltips['gfmu_file_extensions'] = sprintf('<h6>%s</h6>%s', esc_html__('Allowed extensions', 'gfmu-locale'), esc_html__('Specify the allowed extensions.', 'gfmu-locale'));
+        $tooltips['gfmu_save_to_meta'] = sprintf('<h6>%s</h6>%s', esc_html__('Save to meta', 'gf-multi-uploader'), esc_html__('If it is set, will save all the data about uploads into the specified meta.', 'gf-multi-uploader'));
+        $tooltips['gfmu_max_files'] = sprintf('<h6>%s</h6>%s', esc_html__('Max number of files', 'gf-multi-uploader'), esc_html__('Specify the max number of files the user can upload.', 'gf-multi-uploader'));
+        $tooltips['gfmu_file_size'] = sprintf('<h6>%s</h6>%s', esc_html__('Max file size', 'gf-multi-uploader'), esc_html__('Specify the max size for each file uploaded.', 'gf-multi-uploader'));
+        $tooltips['gfmu_file_extensions'] = sprintf('<h6>%s</h6>%s', esc_html__('Allowed extensions', 'gf-multi-uploader'), esc_html__('Specify the allowed extensions.', 'gf-multi-uploader'));
 
         return $tooltips;
     }
@@ -632,35 +635,35 @@ class GFMUAddon extends GFAddOn
             ?>
             <li class="gfmu_file_extensions_setting field_setting">
                 <label for="gfmu_file_extensions" class="section_label">
-                    <?php esc_html_e('Allowed file extensions', 'gfmu-locale'); ?>
+                    <?php esc_html_e('Allowed file extensions', 'gf-multi-uploader'); ?>
                     <?php gform_tooltip('gfmu_file_extensions') ?>
                 </label>
                 <input type="text" onkeyup="SetFieldProperty('gfmu_file_extensions', this.value);" size="40"
                        id="gfmu_file_extensions">
                 <div>
-                    <small><?php esc_html_e('Separated with commas (i.e. webp, jpg, jpeg, gif, png, pdf)', 'gfmu-locale'); ?></small>
+                    <small><?php esc_html_e('Separated with commas (i.e. webp, jpg, jpeg, gif, png, pdf)', 'gf-multi-uploader'); ?></small>
                 </div>
             </li>
             <li class="gfmu_max_files_setting field_setting">
                 <label for="gfmu_max_files" class="section_label">
-                    <?php esc_html_e('Max number of files', 'gfmu-locale'); ?>
+                    <?php esc_html_e('Max number of files', 'gf-multi-uploader'); ?>
                     <?php gform_tooltip('gfmu_max_files') ?>
                 </label>
                 <input type="number" onkeyup="SetFieldProperty('gfmu_max_files', this.value);" size="40"
                        id="gfmu_max_files">
                 <div>
-                    <small><?php esc_html_e('Number of files users can upload for this field.', 'gfmu-locale'); ?></small>
+                    <small><?php esc_html_e('Number of files users can upload for this field.', 'gf-multi-uploader'); ?></small>
                 </div>
             </li>
             <li class="gfmu_file_size_setting field_setting">
                 <label for="gfmu_file_size" class="section_label">
-                    <?php esc_html_e('Maximum file size (MB)', 'gfmu-locale'); ?>
+                    <?php esc_html_e('Maximum file size (MB)', 'gf-multi-uploader'); ?>
                     <?php gform_tooltip('gfmu_file_size') ?>
                 </label>
                 <input type="text" onkeyup="SetFieldProperty('gfmu_file_size', this.value);" size="40"
                        id="gfmu_file_size">
                 <div>
-                    <small><?php esc_html_e('Value in MB for this field override.', 'gfmu-locale'); ?></small>
+                    <small><?php esc_html_e('Value in MB for this field override.', 'gf-multi-uploader'); ?></small>
                 </div>
             </li>
             <?php
@@ -673,13 +676,13 @@ class GFMUAddon extends GFAddOn
             ?>
             <li class="gfmu_save_to_meta_setting field_setting" style="display: list-item;">
                 <label for="gfmu_save_to_meta" class="section_label">
-                    <?php esc_html_e('Save to meta', 'gfmu-locale'); ?>
+                    <?php esc_html_e('Save to meta', 'gf-multi-uploader'); ?>
                     <?php gform_tooltip('gfmu_save_to_meta') ?>
                 </label>
                 <input type="text" onkeyup="SetFieldProperty('gfmu_save_to_meta', this.value);" size="40"
                        id="gfmu_save_to_meta">
                 <div>
-                    <small><?php esc_html_e("If it's set will save the uploaded data into the specified meta value, comma separated.", 'gfmu-locale'); ?></small>
+                    <small><?php esc_html_e("If it's set will save the uploaded data into the specified meta value, comma separated.", 'gf-multi-uploader'); ?></small>
                 </div>
             </li>
             <?php
